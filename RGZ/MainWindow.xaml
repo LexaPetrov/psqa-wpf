@@ -1,0 +1,93 @@
+﻿<Window x:Class="RGZ.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RGZ"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800" WindowStartupLocation="CenterScreen" MinWidth="800" MinHeight="600" MaxWidth="800" MaxHeight="600" Background="#FF803878" ResizeMode="CanMinimize" WindowStyle="None" BorderThickness="1">
+    <Grid Background="#FFD6DBE9">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="548"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.ColumnSpan="3">
+            <Rectangle x:Name="Rect_navigation" Fill="#FF803878" HorizontalAlignment="Left" Height="30"  VerticalAlignment="Top" Width="800" Margin="0,0,-8,0"/>
+        </StackPanel>
+
+
+        <Button x:Name="btn_Close" Content="X" VerticalAlignment="Top" Margin="120,0,0,0"
+                Height="30" Width="50" ToolTip="Close" Click="btn_Close_Click" FontFamily="Arial" FontSize="14" 
+                Background="#FF803878" BorderThickness="0" Foreground="White" Grid.Column="2" HorizontalAlignment="Right"/>
+
+        <Button x:Name="btn_Minimize" Content="-" HorizontalAlignment="Center" VerticalAlignment="Top" 
+                Width="50" Margin="448,0,50,0" Height="30" ToolTip="Minimize"
+                FontFamily="Times New Roman" FontSize="24" FontWeight="Bold" Background="#FF803878" 
+                BorderThickness="0" Foreground="White" Grid.Column="1" Click="Minimize_MouseDown" >
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Background" Value="Green"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Red"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+
+
+        <Rectangle x:Name="rect_menu" Fill="Black" HorizontalAlignment="Left" Height="568" Margin="0,30,0,0" VerticalAlignment="Top" Width="250"/>
+
+        <Button x:Name="btn_openfile" HorizontalAlignment="Left" Height="50" Margin="0,130,0,0" VerticalAlignment="Top" Width="48" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" >
+            <Image Source="Resources/add-item.png" Height="32" Width="32"/>
+        </Button>
+
+        <Button x:Name="utn_save"  HorizontalAlignment="Left" Height="50" Margin="0,270,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
+            <Image Source="Resources/download.png" Height="32" Width="32"/>
+        </Button>
+
+        <Button x:Name="btn_settings" HorizontalAlignment="Left" Height="50" Margin="0,340,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
+            <Image Source="Resources/processing.png" Height="32" Width="32"/>
+        </Button>
+
+        <Button x:Name="btn_exit" HorizontalAlignment="Left" Height="50" Margin="0,540,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_exit_Click">
+            <Image Source="Resources/shut-down.png" Height="32" Width="32"/>
+        </Button>
+
+        <Button x:Name="btn_closemenu" HorizontalAlignment="Right" Height="50" Margin="0,45,10,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Background="{x:Null}" Click="btn_closemenu_Click" >
+            <Image Source="Resources\arrow-round.png" Height="32" Width="32"></Image>
+        </Button>
+
+        <Button x:Name="btn_openmenu" HorizontalAlignment="Right" Height="50" Margin="0,45,200,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Background="{x:Null}" Click="btn_openmenu_Click" >
+            <Image Source="Resources/arrow-round-copy.png" Height="32" Width="32"/>
+        </Button>
+
+        <Button x:Name="btn_openfile_opened" Content="отрыть файл" HorizontalAlignment="Left" Margin="50,130,0,0" VerticalAlignment="Top" Width="190" Height="50" BorderThickness="0" FontSize="24" Foreground="White" Background="{x:Null}" FontWeight="Light"/>
+        <Button x:Name="btn_save_opened" Content="сохранить" HorizontalAlignment="Left" Margin="50,270,0,0" VerticalAlignment="Top" Width="190" Height="50" HorizontalContentAlignment="Center" FontSize="24" FontWeight="Light" BorderThickness="0" Foreground="White" Background="{x:Null}"/>
+        <Button x:Name="btn_settings_open" Content="настройки" HorizontalAlignment="Left" Margin="50,340,0,0" VerticalAlignment="Top" Width="190" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White" BorderThickness="0"/>
+        <Button x:Name="btn_exit_opened" Click="btn_exit_Click"  Content="выход" HorizontalAlignment="Left" Margin="50,540,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White"/>
+
+        <Button x:Name="btn_openfolder" HorizontalAlignment="Left" Margin="0,200,0,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderThickness="0">
+            <Image Source="Resources/copy-item.png" Height="32" Width="32"/>
+        </Button>
+
+        <Button x:Name="btn_openfolder_opened" Content="открыть папку" HorizontalAlignment="Left" Height="50" Margin="50,200,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" FontSize="24" FontWeight="Light" Foreground="White" Background="{x:Null}"/>
+        <Button x:Name="btn_about_opened" Content="о программе" HorizontalAlignment="Left" Height="50" Margin="50,410,0,0" VerticalAlignment="Top" Width="190" Background="{x:Null}" Foreground="White" FontSize="24" FontWeight="Light" BorderThickness="0"/>
+
+        <Button x:Name="btn_about" HorizontalAlignment="Left" Margin="0,410,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}">
+            <Image Source="Resources/star.png" Height="32" Width="32"/>
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Background" Value="Green"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Red"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+    </Grid>
+</Window>
