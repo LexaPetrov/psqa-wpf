@@ -72,7 +72,7 @@ namespace RGZ
 
         private void Minimize_MouseDown(object sender, RoutedEventArgs e)
         {
-            this.WindowState = WindowState.Minimized;
+            this.WindowState = WindowState.Minimized; //свернуть
         }
     }
 }
