@@ -23,16 +23,17 @@
 
         <Button x:Name="btn_Minimize" Content="-" HorizontalAlignment="Center" VerticalAlignment="Top" 
                 Width="50" Margin="448,0,50,0" Height="30" ToolTip="Minimize"
-                FontFamily="Times New Roman" FontSize="24" FontWeight="Bold" Background="#FF803878" 
+                FontFamily="Times New Roman" FontSize="24" FontWeight="Bold"  
                 BorderThickness="0" Foreground="White" Grid.Column="1" Click="Minimize_MouseDown" >
             <Button.Style>
                 <Style TargetType="Button">
-                    <Setter Property="Background" Value="Green"/>
+                    <Setter Property="Background" Value="#FF803878"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="Red"/>
                         </Trigger>
                     </Style.Triggers>
+                    
                 </Style>
             </Button.Style>
         </Button>
@@ -41,7 +42,7 @@
         <Rectangle x:Name="rect_menu" Fill="Black" HorizontalAlignment="Left" Height="568" Margin="0,30,0,0" VerticalAlignment="Top" Width="250"/>
 
         <Button x:Name="btn_openfile" HorizontalAlignment="Left" Height="50" Margin="0,130,0,0" VerticalAlignment="Top" Width="48" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" >
-            <Image Source="Resources/add-item.png" Height="32" Width="32"/>
+            <Image Source="Resources/add-item.png" Height="32" Width="32" HorizontalAlignment="Center"/>
         </Button>
 
         <Button x:Name="utn_save"  HorizontalAlignment="Left" Height="50" Margin="0,270,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
@@ -64,7 +65,7 @@
             <Image Source="Resources/arrow-round-copy.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_openfile_opened" Content="отрыть файл" HorizontalAlignment="Left" Margin="50,130,0,0" VerticalAlignment="Top" Width="190" Height="50" BorderThickness="0" FontSize="24" Foreground="White" Background="{x:Null}" FontWeight="Light"/>
+        <Button x:Name="btn_openfile_opened" Content="открыть файл" HorizontalAlignment="Left" Margin="50,130,0,0" VerticalAlignment="Top" Width="190" Height="50" BorderThickness="0" FontSize="24" Foreground="White" Background="{x:Null}" FontWeight="Light"/>
         <Button x:Name="btn_save_opened" Content="сохранить" HorizontalAlignment="Left" Margin="50,270,0,0" VerticalAlignment="Top" Width="190" Height="50" HorizontalContentAlignment="Center" FontSize="24" FontWeight="Light" BorderThickness="0" Foreground="White" Background="{x:Null}"/>
         <Button x:Name="btn_settings_open" Content="настройки" HorizontalAlignment="Left" Margin="50,340,0,0" VerticalAlignment="Top" Width="190" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White" BorderThickness="0"/>
         <Button x:Name="btn_exit_opened" Click="btn_exit_Click"  Content="выход" HorizontalAlignment="Left" Margin="50,540,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White"/>
@@ -76,18 +77,12 @@
         <Button x:Name="btn_openfolder_opened" Content="открыть папку" HorizontalAlignment="Left" Height="50" Margin="50,200,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" FontSize="24" FontWeight="Light" Foreground="White" Background="{x:Null}"/>
         <Button x:Name="btn_about_opened" Content="о программе" HorizontalAlignment="Left" Height="50" Margin="50,410,0,0" VerticalAlignment="Top" Width="190" Background="{x:Null}" Foreground="White" FontSize="24" FontWeight="Light" BorderThickness="0"/>
 
-        <Button x:Name="btn_about" HorizontalAlignment="Left" Margin="0,410,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}">
+        <Button x:Name="btn_about" HorizontalAlignment="Left" Margin="0,410,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" >
             <Image Source="Resources/star.png" Height="32" Width="32"/>
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Background" Value="Green"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="Red"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
+            
+               
+
         </Button>
+        
     </Grid>
 </Window>
