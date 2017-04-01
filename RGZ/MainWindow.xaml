@@ -31,7 +31,7 @@
         <Rectangle x:Name="rect_menu" Fill="Black" HorizontalAlignment="Left" Height="568" Margin="0,30,0,0" VerticalAlignment="Top" Width="250"/>
 
         <Button x:Name="btn_openfile" HorizontalAlignment="Left" Height="50" Margin="0,130,0,0" VerticalAlignment="Top" Width="48" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" >
-            <Image Source="Resources/add-item.png" Height="32" Width="32" HorizontalAlignment="Center"/>
+            <Image Source="Resources/add-item.png" Height="32" Width="32" HorizontalAlignment="Center" Margin="0,0,-4,0"/>
         </Button>
 
         <Button x:Name="utn_save"  HorizontalAlignment="Left" Height="50" Margin="0,270,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
