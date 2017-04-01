@@ -6,6 +6,22 @@
         xmlns:local="clr-namespace:RGZ"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" WindowStartupLocation="CenterScreen" MinWidth="800" MinHeight="600" MaxWidth="800" MaxHeight="600" Background="#FF803878" ResizeMode="CanMinimize" WindowStyle="None" BorderThickness="1">
+    <Window.Resources>
+        <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
+            <Border Name="border"
+                    TextBlock.Foreground="White" TextBlock.TextAlignment="Center" >
+                <ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"></ContentPresenter>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="border" Property="Background" Value="Gray"></Setter>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="Yellow"></Setter>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
     <Grid Background="#FFD6DBE9">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250"/>
@@ -17,11 +33,11 @@
         </StackPanel>
 
 
-        <Button x:Name="btn_Close" Content="X" VerticalAlignment="Top" Margin="120,0,0,0"
+        <Button x:Name="btn_Close" Template="{StaticResource ButtonTemplate}" Content="X" VerticalAlignment="Top" Margin="120,0,0,0"
                 Height="30" Width="50" ToolTip="Close" Click="btn_Close_Click" FontFamily="Arial" FontSize="14" 
-                Background="#FF803878" BorderThickness="0" Foreground="White" Grid.Column="2" HorizontalAlignment="Right"/>
+                Background="#FF803878" BorderThickness="0" Foreground="White" Grid.Column="2" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 
-        <Button x:Name="btn_Minimize" Content="-" HorizontalAlignment="Center" VerticalAlignment="Top" 
+        <Button x:Name="btn_Minimize" Template="{StaticResource ButtonTemplate}" Content="-" HorizontalAlignment="Center" VerticalAlignment="Top" 
                 Width="50" Margin="448,0,50,0" Height="30" ToolTip="Minimize"
                 FontFamily="Times New Roman" FontSize="24" FontWeight="Bold"  
                 BorderThickness="0" Foreground="White" Grid.Column="1" Click="Minimize_MouseDown" Background="#FF803878">
@@ -30,45 +46,48 @@
 
         <Rectangle x:Name="rect_menu" Fill="Black" HorizontalAlignment="Left" Height="568" Margin="0,30,0,0" VerticalAlignment="Top" Width="250"/>
 
-        <Button x:Name="btn_openfile" HorizontalAlignment="Left" Height="50" Margin="0,130,0,0" VerticalAlignment="Top" Width="48" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" >
-            <Image Source="Resources/add-item.png" Height="32" Width="32" HorizontalAlignment="Center" Margin="0,0,-4,0"/>
+        <Button x:Name="btn_openfile" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,130,0,0" VerticalAlignment="Top" Width="48" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" >
+            <Image Source="Resources/add-item.png" Height="32" Width="32" HorizontalAlignment="Center" Margin="0"/>
         </Button>
 
-        <Button x:Name="utn_save"  HorizontalAlignment="Left" Height="50" Margin="0,270,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
+        <Button x:Name="utn_save" Template="{StaticResource ButtonTemplate}"  HorizontalAlignment="Left" Height="50" Margin="0,270,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
             <Image Source="Resources/download.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_settings" HorizontalAlignment="Left" Height="50" Margin="0,340,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
+        <Button x:Name="btn_settings" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,340,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
             <Image Source="Resources/processing.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_exit" HorizontalAlignment="Left" Height="50" Margin="0,540,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_exit_Click">
+        <Button x:Name="btn_exit" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,540,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_exit_Click">
             <Image Source="Resources/shut-down.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_closemenu" HorizontalAlignment="Right" Height="50" Margin="0,45,10,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Background="{x:Null}" Click="btn_closemenu_Click" >
+        <Button x:Name="btn_closemenu" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Right" Height="50" Margin="0,45,10,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Background="{x:Null}" Click="btn_closemenu_Click" >
             <Image Source="Resources\arrow-round.png" Height="32" Width="32"></Image>
         </Button>
 
-        <Button x:Name="btn_openmenu" HorizontalAlignment="Right" Height="50" Margin="0,45,200,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Background="{x:Null}" Click="btn_openmenu_Click" >
+        <Button x:Name="btn_openmenu" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Right" Height="50" Margin="0,45,200,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Background="{x:Null}" Click="btn_openmenu_Click" >
             <Image Source="Resources/arrow-round-copy.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_openfile_opened" Content="открыть файл" HorizontalAlignment="Left" Margin="50,130,0,0" VerticalAlignment="Top" Width="190" Height="50" BorderThickness="0" FontSize="24" Foreground="White" Background="{x:Null}" FontWeight="Light"/>
-        <Button x:Name="btn_save_opened" Content="сохранить" HorizontalAlignment="Left" Margin="50,270,0,0" VerticalAlignment="Top" Width="190" Height="50" HorizontalContentAlignment="Center" FontSize="24" FontWeight="Light" BorderThickness="0" Foreground="White" Background="{x:Null}"/>
-        <Button x:Name="btn_settings_open" Content="настройки" HorizontalAlignment="Left" Margin="50,340,0,0" VerticalAlignment="Top" Width="190" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White" BorderThickness="0"/>
-        <Button x:Name="btn_exit_opened" Click="btn_exit_Click"  Content="выход" HorizontalAlignment="Left" Margin="50,540,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White"/>
+        <Button x:Name="btn_openfile_opened" Template="{StaticResource ButtonTemplate}" Content="открыть файл" HorizontalAlignment="Left" Margin="50,130,0,0" VerticalAlignment="Top" Width="190" Height="50" BorderThickness="0" FontSize="24" Foreground="White" Background="{x:Null}" FontWeight="Light"/>
+        <Button x:Name="btn_save_opened" Template="{StaticResource ButtonTemplate}" Content="сохранить" HorizontalAlignment="Left" Margin="50,270,0,0" VerticalAlignment="Top" Width="190" Height="50" HorizontalContentAlignment="Center" FontSize="24" FontWeight="Light" BorderThickness="0" Foreground="White" Background="{x:Null}"/>
+        <Button x:Name="btn_settings_open" Template="{StaticResource ButtonTemplate}" Content="настройки" HorizontalAlignment="Left" Margin="50,340,0,0" VerticalAlignment="Top" Width="190" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White" BorderThickness="0"/>
+        <Button x:Name="btn_exit_opened" Template="{StaticResource ButtonTemplate}" Click="btn_exit_Click"  Content="выход" HorizontalAlignment="Left" Margin="50,540,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White" HorizontalContentAlignment="Center"/>
 
-        <Button x:Name="btn_openfolder" HorizontalAlignment="Left" Margin="0,200,0,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderThickness="0">
+        <Button x:Name="btn_openfolder" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,200,0,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderThickness="0">
             <Image Source="Resources/copy-item.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_openfolder_opened" Content="открыть папку" HorizontalAlignment="Left" Height="50" Margin="50,200,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" FontSize="24" FontWeight="Light" Foreground="White" Background="{x:Null}"/>
-        <Button x:Name="btn_about_opened" Content="о программе" HorizontalAlignment="Left" Height="50" Margin="50,410,0,0" VerticalAlignment="Top" Width="190" Background="{x:Null}" Foreground="White" FontSize="24" FontWeight="Light" BorderThickness="0"/>
+        <Button x:Name="btn_openfolder_opened" Template="{StaticResource ButtonTemplate}" Content="открыть папку" HorizontalAlignment="Left" Height="50" Margin="50,200,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" FontSize="24" FontWeight="Light" Foreground="White" Background="{x:Null}" />
+        <Button x:Name="btn_about_opened"  Template="{StaticResource ButtonTemplate}" Content="о программе" HorizontalAlignment="Left" Height="50" Margin="50,410,0,0" VerticalAlignment="Top" Width="190" Background="{x:Null}" Foreground="White" FontSize="24" FontWeight="Light" BorderThickness="0"/>
 
-        <Button x:Name="btn_about" HorizontalAlignment="Left" Margin="0,410,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" >
+        <Button  x:Name="btn_about" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,410,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" >
             <Image Source="Resources/star.png" Height="32" Width="32"/>
         </Button>
-        
+        <TextBox x:Name="textBox_copyright" HorizontalAlignment="Left" Height="38" Margin="275,567,-57,-7" TextWrapping="Wrap" Text="Petrov-Chumakov 2017 (c) All Rights Received" VerticalAlignment="Top" Width="330" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Background="{x:Null}" BorderThickness="0" FontWeight="Light" Foreground="White" FontSize="10" Grid.Column="1" Focusable="False"/>
+        <TextBox x:Name="textBox_name" HorizontalAlignment="Left" Height="85" Margin="10,45,0,0" TextWrapping="Wrap" Text="Оценка критериев качества программы на C# " VerticalAlignment="Top" Width="175" BorderBrush="{x:Null}" Background="{x:Null}" BorderThickness="0" FontWeight="Light" Foreground="White" FontSize="20" Focusable="False"/>
+
     </Grid>
+
 </Window>

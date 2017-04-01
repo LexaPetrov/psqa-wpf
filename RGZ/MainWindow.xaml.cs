@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Drawing;
 
 namespace RGZ
 {
@@ -19,7 +20,7 @@ namespace RGZ
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
+    {//  Style="{StaticResource testBtn}"
         public MainWindow()
         {
             InitializeComponent();
@@ -30,6 +31,7 @@ namespace RGZ
         {
             this.Close(); //закрыть
         }
+      
 
         private void btn_closemenu_Click(object sender, RoutedEventArgs e)
         {
@@ -43,6 +45,7 @@ namespace RGZ
                 btn_exit_opened.Visibility = Visibility.Collapsed;
                 btn_openfolder_opened.Visibility = Visibility.Collapsed;
                 btn_about_opened.Visibility = Visibility.Collapsed;
+                textBox_name.Visibility = Visibility.Collapsed;
                 rect_menu.Height = 568;
                 rect_menu.Width = 50;
          
@@ -60,6 +63,7 @@ namespace RGZ
             btn_exit_opened.Visibility = Visibility.Visible;
             btn_openfolder_opened.Visibility = Visibility.Visible;
             btn_about_opened.Visibility = Visibility.Visible;
+            textBox_name.Visibility = Visibility.Visible;
             rect_menu.Height = 568;
             rect_menu.Width = 250;
            
@@ -74,5 +78,7 @@ namespace RGZ
         {
             this.WindowState = WindowState.Minimized; //свернуть
         }
+
+      
     }
 }
