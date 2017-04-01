@@ -25,6 +25,8 @@ namespace RGZ
         {
             InitializeComponent();
             btn_openmenu.Visibility = Visibility.Collapsed;
+            
+            
         }
 
         private void btn_Close_Click(object sender, RoutedEventArgs e)
@@ -80,9 +82,6 @@ namespace RGZ
             textBox_name.Visibility = Visibility.Visible;
             rect_menu.Height = 568;
           /*--------------------------------------------------------*/
-
-
-
         }
 
         private void btn_exit_Click(object sender, RoutedEventArgs e)
@@ -95,6 +94,86 @@ namespace RGZ
             this.WindowState = WindowState.Minimized; //свернуть
         }
 
-      
+        private void btn_settings_Click(object sender, RoutedEventArgs e)
+        {
+            if (rect_menu.Height == 568 && rect_menu.Width == 250 || rect_menu.Width==50)
+            {
+                textBox_settings.Text = "настройки";
+                textBox_description.Visibility = Visibility.Collapsed;
+                btn_apply.Visibility = Visibility.Visible;
+                btn_closeright.Visibility = Visibility.Visible;
+                rect_settings.Visibility = Visibility.Visible;
+                textBox_settings.Visibility = Visibility.Visible;
+                if (rect_menu.Width == 250)
+                {
+                    
+                    btn_closemenu_Click(this, new RoutedEventArgs());
+                }
+            }  
+           else if(rect_settings.Height == 568 && rect_settings.Visibility == Visibility.Collapsed && rect_menu.Width == 50 )
+            {
+                textBox_description.Visibility = Visibility.Collapsed;
+                btn_apply.Visibility = Visibility.Visible;
+                btn_closeright.Visibility = Visibility.Visible;
+                rect_settings.Visibility = Visibility.Visible;
+                textBox_settings.Visibility = Visibility.Visible;
+                textBox_settings.Text = "настройки";
+            }
+           
+        }
+
+        private void btn_about_Click(object sender, RoutedEventArgs e)
+        {
+            if (rect_menu.Height == 568 && rect_menu.Width == 250 || rect_menu.Width==50)
+            {
+                textBox_settings.Text = "о программе";
+                textBox_description.Visibility = Visibility.Visible;
+                btn_apply.Visibility = Visibility.Visible;
+                btn_closeright.Visibility = Visibility.Visible;
+                rect_settings.Visibility = Visibility.Visible;
+                textBox_settings.Visibility = Visibility.Visible;
+                if (rect_menu.Width == 250)
+                {
+                   
+                    btn_closemenu_Click(this, new RoutedEventArgs());
+                }
+            }
+           else if (rect_settings.Height == 568 && rect_settings.Visibility == Visibility.Collapsed && rect_menu.Width == 50)
+            {
+                textBox_description.Visibility = Visibility.Visible;
+                btn_apply.Visibility = Visibility.Visible;
+                btn_closeright.Visibility = Visibility.Visible;
+                rect_settings.Visibility = Visibility.Visible;
+                textBox_settings.Visibility = Visibility.Visible;
+                textBox_settings.Text = "о программе";
+            }
+            
+        }
+
+        private void btn_apply_Click(object sender, RoutedEventArgs e)
+        {
+            if (rect_settings.Height == 568 && rect_settings.Width == 250 || rect_settings.Width == 50)
+            {
+              
+                textBox_description.Visibility = Visibility.Collapsed;
+                rect_settings.Visibility = Visibility.Collapsed;
+                textBox_settings.Visibility = Visibility.Collapsed;
+                btn_apply.Visibility = Visibility.Collapsed;
+                btn_closeright.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void btn_closeright_Click(object sender, RoutedEventArgs e)
+        {
+            if (rect_settings.Height == 568 && rect_settings.Width == 250 || rect_settings.Width == 50)
+            {
+               
+                textBox_description.Visibility = Visibility.Collapsed;
+                rect_settings.Visibility = Visibility.Collapsed;
+                textBox_settings.Visibility = Visibility.Collapsed;
+                btn_apply.Visibility = Visibility.Collapsed;
+                btn_closeright.Visibility = Visibility.Collapsed;
+            }
+        }
     }
 }
