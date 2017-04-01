@@ -29,7 +29,7 @@ namespace RGZ
 
         private void btn_Close_Click(object sender, RoutedEventArgs e)
         {
-            this.Close(); //закрыть
+            this.Close(); //закрыть программу на крестик (Х)
         }
       
 
@@ -37,6 +37,12 @@ namespace RGZ
         {
             if (rect_menu.Height == 568 && rect_menu.Width == 250)
             {
+                System.Windows.Media.Animation.DoubleAnimation da = new System.Windows.Media.Animation.DoubleAnimation();
+                da.From = 250;
+                da.To = rect_menu.Width - 200;
+                da.Duration = TimeSpan.FromSeconds(0.22222);
+              /*--------------------------------------------------------*/
+                rect_menu.BeginAnimation(Rectangle.WidthProperty, da);
                 btn_closemenu.Visibility = Visibility.Collapsed;
                 btn_openmenu.Visibility = Visibility.Visible;
                 btn_openfile_opened.Visibility = Visibility.Collapsed;
@@ -46,15 +52,23 @@ namespace RGZ
                 btn_openfolder_opened.Visibility = Visibility.Collapsed;
                 btn_about_opened.Visibility = Visibility.Collapsed;
                 textBox_name.Visibility = Visibility.Collapsed;
-                rect_menu.Height = 568;
-                rect_menu.Width = 50;
-         
+                /*--------------------------------------------------------*/
+
+
+
+
             }
-           
+
         }
 
         private void btn_openmenu_Click(object sender, RoutedEventArgs e)
         {
+            System.Windows.Media.Animation.DoubleAnimation da = new System.Windows.Media.Animation.DoubleAnimation();
+            da.From = rect_menu.Width - 200;
+            da.To = 250;
+            da.Duration = TimeSpan.FromSeconds(0.07);
+            rect_menu.BeginAnimation(Rectangle.WidthProperty, da);
+         /*--------------------------------------------------------*/
             btn_openmenu.Visibility = Visibility.Collapsed;
             btn_closemenu.Visibility = Visibility.Visible;
             btn_openfile_opened.Visibility = Visibility.Visible;
@@ -65,13 +79,15 @@ namespace RGZ
             btn_about_opened.Visibility = Visibility.Visible;
             textBox_name.Visibility = Visibility.Visible;
             rect_menu.Height = 568;
-            rect_menu.Width = 250;
-           
+          /*--------------------------------------------------------*/
+
+
+
         }
 
         private void btn_exit_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            this.Close(); //зкрыть программу
         }
 
         private void Minimize_MouseDown(object sender, RoutedEventArgs e)
