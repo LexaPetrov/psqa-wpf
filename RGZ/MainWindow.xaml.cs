@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.IO;
+using Microsoft.Win32;
 
 namespace RGZ
 {
@@ -26,8 +27,8 @@ namespace RGZ
         {
             InitializeComponent();
             btn_openmenu.Visibility = Visibility.Collapsed;
-            
-            
+            //btn_closeright_Click(this, new RoutedEventArgs());
+            btn_delete.Visibility = Visibility.Collapsed;
         }
 
         private void btn_Close_Click(object sender, RoutedEventArgs e)
@@ -176,34 +177,83 @@ namespace RGZ
                 btn_closeright.Visibility = Visibility.Collapsed;
             }
         }
+        private void btn_hideUI_Click(object sender, RoutedEventArgs e)
+        {
+            if (btn_delete.Visibility == Visibility.Visible)
+                btn_delete.Visibility = Visibility.Collapsed;
+            else btn_delete.Visibility = Visibility.Visible;
+       
+        }
         //РАБОТА С ФАЙЛОВОЙ СИСТЕМОЙ.........................................................................................................
+        /// <summary>
+        /// Доавление файлов 
+        /// </summary>
+        List<string> paths = new List<string>();
         private void btn_openfile_Click(object sender, RoutedEventArgs e)//кнопка открыть файлы (ПОКА ТОЛЬКО cs-ники)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "C# source (.cs)|*.cs";
-            List<string> paths = new List<string>();//лист путей к файлам
+           //лист путей к файлам
             dlg.Multiselect = true;//можно выбрать много файлов
             bool? res = dlg.ShowDialog();//вызываем окно открытия
+
             if (res == true)//если файлы выбраны
             {
                 for (int i = 0; i < dlg.FileNames.Length; i++)
                 {
                     if (dlg.FileNames[i].Length < 4 || (dlg.FileNames[i].Length > 3 && (dlg.FileNames[i][dlg.FileNames[i].Length - 1] != 's' || dlg.FileNames[i][dlg.FileNames[i].Length - 2] != 'c' || dlg.FileNames[i][dlg.FileNames[i].Length - 3] != '.')))
                     {
+                        cs.Vars.Files.Clear();
                         paths.Clear();
                         //Бросить исключение "Недопустимое имя файла"     
                     }
+                    cs.Vars.Files.Add(dlg.FileNames[i]);
+                    listBox_namelist.Items.Add(cs.Vars.GetFileName(dlg.FileNames[i])); //добавляем вкладки
                     paths.Add(dlg.FileNames[i]);//добавляем модули к листу
                 }
-
-
-                LoadingFiles(paths);//загружаем каждый файл
+                LoadingFiles(cs.Vars.Files);//загружаем каждый файл
+                //загружаем код из вкладок (какая-то херь. как ее сделать то)
             }
         }
-        //ОБРАБОТКА ФАЙЛОВ...................................................................................................................
-        private void LoadingFiles(List<string> paths)
+        private void btn_openfolder_Click(object sender, RoutedEventArgs e)
         {
-            foreach (string x in paths)//идём по файлам
+            //System.Windows.FolderBrowserDialog dlg = new FolderBrowserDialog();
+            //DialogResult result = dlg.ShowDialog();
+            //dlg.ShowNewFolderButton = false;
+            //if (System.Windows.Forms.DialogResult.OK == result)
+            //{
+            //    foreach (string currentFile in System.IO.Directory.GetFiles(dlg.SelectedPath, "*.cs", SearchOption.AllDirectories))
+
+            //    {
+            //        for (int i = 0; i < dlg.FileNames.Length; i++)
+            //        {
+            //            if (dlg.FileNames[i].Length < 4 || (dlg.FileNames[i].Length > 3 && (dlg.FileNames[i][dlg.FileNames[i].Length - 1] != 's' || dlg.FileNames[i][dlg.FileNames[i].Length - 2] != 'c' || dlg.FileNames[i][dlg.FileNames[i].Length - 3] != '.')))
+            //            {
+            //                paths.Clear();
+            //                //Бросить исключение "Недопустимое имя файла"     
+            //            }
+            //           cs.Vars.Files.Add(dlg.FileNames[i]);
+            //   listBox_namelist.Items.Add(cs.Vars.GetFileName(dlg.FileNames[i])); //добавляем вкладки
+            //            paths.Add(dlg.FileNames[i]);//добавляем модули к листу
+            //        }
+            //        LoadingFiles(paths);//загружаем каждый файл
+            //        label_codes.Content = paths;//загружаем код из вкладок (какая-то херь. как ее сделать то)
+            //    }
+            //}
+        }
+        private void btn_delete_Click(object sender, RoutedEventArgs e)
+        {
+           // cs.Vars.Files.RemoveAll(cs.Vars.CurrentCodeNumber);
+        }
+
+        //ОБРАБОТКА ФАЙЛОВ...................................................................................................................
+        /// <summary>
+        /// Функция обработки файлов
+        /// </summary>
+        /// <param name="Files"></param>
+        private void LoadingFiles(List<string> Files)
+        {
+            foreach (string x in cs.Vars.Files)//идём по файлам
             {
                 List<string> ModuleText = new List<string>();//текст модуля
                 FileStream fs = new FileStream(x, FileMode.Open, FileAccess.Read);//создаём файловый поток
@@ -213,8 +263,12 @@ namespace RGZ
                 while (!sr.EndOfStream)//читаем файл до конца
                 {
                     ModuleText.Add(sr.ReadLine());
+                    
                 }
                 //результаты нужно куда-нибудь вывести или сохранить
+                foreach (string s in ModuleText)
+                    for(int i =0; i < ModuleText.Count; i++)
+                label_codes.Content = ModuleText[i];
                 int CommentQuantity = 0;
                 ModuleText = RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
                 ModuleText = ModuleProcessing(ModuleText);//обработка модуля от лишних строк и разделителей
@@ -277,7 +331,7 @@ namespace RGZ
                                 break;
                             }
                         }
-                        Result[i] += Text[i][j];//может вылетит, погляжу
+                       // Result[i] += Text[i][j];//может вылетит, погляжу
                     }
             }
             return Result;
@@ -296,6 +350,14 @@ namespace RGZ
             //теперь всё надо посчитать
             return null;
         }
+        /// <summary>
+        /// Поиск всех операторов
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="operators"></param>
+        /// <param name="Functions"></param>
+        /// <param name="TemplateClasses"></param>
+        /// <returns></returns>
         private int FindAllOperators(List<string> Text, ref bool[] operators, ref List<string> Functions, List<string> TemplateClasses)//поиск всех операторов
         {
             /*Операторы в следующем порядке: +(унарный), +(бинарный), -(унарный), -(бинарный), *, /, %, ++, --, ==, !=(10), >, <,
@@ -787,9 +849,16 @@ namespace RGZ
             return OperatorsQuantity;
         }
 
+       
+
+
+
+
+
         //private int FindAllOperands()
         //{
 
+        //      return OperandsQuantity;
         //}
     }
 }
