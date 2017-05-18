@@ -30,9 +30,9 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.ColumnSpan="3">
-            <Rectangle x:Name="Rect_navigation" Fill="#FF803878" HorizontalAlignment="Left" Height="30"  VerticalAlignment="Top" Width="800" Margin="0,0,-8,0"/>
-            <Label x:Name="label_codes" Content=" " HorizontalAlignment="Left" VerticalAlignment="Top" Width="544" Height="568" Foreground="Black" FontSize="14" Background="#FFD6DBE9" Margin="255,0,0,0"/>
-            <ListBox x:Name="listBox_namelist" Height="454" Background="#FFD6DBE9" Margin="50,-683,548,0" BorderBrush="{x:Null}" FontSize="24"/>
+            <Rectangle x:Name="Rect_navigation" Fill="#FF803878" HorizontalAlignment="Left" Height="30"  VerticalAlignment="Top" Width="798" MouseDown="Rect_navigation_MouseLeftButtonDown"/>
+            <TextBox x:Name="label_codes"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="544" Height="568" Foreground="Black" FontSize="14" Background="#FFD6DBE9" Margin="255,0,0,0" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" IsReadOnly="True" BorderBrush="{x:Null}"/>
+            <ListBox x:Name="listBox_namelist" Height="454" Background="#FFD6DBE9" Margin="50,-683,548,0" BorderBrush="{x:Null}" FontSize="24" SelectionChanged="listBox_namelist_SelectionChanged"/>
         </StackPanel>
 
 
@@ -41,7 +41,7 @@
                 Background="#FF803878" BorderThickness="0" Foreground="White" Grid.Column="2" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 
         <Button x:Name="btn_Minimize" Template="{StaticResource ButtonTemplate}" Content="-" HorizontalAlignment="Center" VerticalAlignment="Top" 
-                Width="50" Margin="448,0,50,0" Height="30" ToolTip="Minimize"
+                Width="50" Margin="438,0,60,0" Height="30" ToolTip="Minimize"
                 FontFamily="Times New Roman" FontSize="24" FontWeight="Bold"  
                 BorderThickness="0" Foreground="White" Grid.Column="2" Click="Minimize_MouseDown" Background="#FF803878">
         </Button>
@@ -49,19 +49,19 @@
 
         <Rectangle x:Name="rect_menu" Fill="Black" HorizontalAlignment="Left" Height="568" Margin="0,30,0,0" VerticalAlignment="Top" Width="250" Grid.ColumnSpan="2"/>
 
-        <Button x:Name="btn_openfile" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,130,0,0" VerticalAlignment="Top" Width="48" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_openfile_Click" >
+        <Button x:Name="btn_openfile" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,130,0,0" VerticalAlignment="Top" Width="48" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_openfile_Click" ToolTip="Открыть файл" >
             <Image Source="Resources/add-item.png" Height="32" Width="32" HorizontalAlignment="Center" Margin="0"/>
         </Button>
 
-        <Button x:Name="utn_save" Template="{StaticResource ButtonTemplate}"  HorizontalAlignment="Left" Height="50" Margin="0,270,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}">
+        <Button x:Name="utn_save" Template="{StaticResource ButtonTemplate}"  HorizontalAlignment="Left" Height="50" Margin="0,270,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" ToolTip="Сохранить" Click="btn_save_opened_Click">
             <Image Source="Resources/download.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_settings" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,340,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_settings_Click">
+        <Button x:Name="btn_settings" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,340,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_settings_Click" ToolTip="Настройки">
             <Image Source="Resources/processing.png" Height="32" Width="32"/>
         </Button>
 
-        <Button x:Name="btn_exit" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,540,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_exit_Click">
+        <Button x:Name="btn_exit" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Height="50" Margin="0,540,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Padding="1,-2,1,1" Background="{x:Null}" Click="btn_exit_Click" ToolTip="Закрыть программу">
             <Image Source="Resources/shut-down.png" Height="32" Width="32"/>
         </Button>
 
@@ -74,18 +74,18 @@
         </Button>
 
         <Button x:Name="btn_openfile_opened" Template="{StaticResource ButtonTemplate}" Content="открыть файл" HorizontalAlignment="Left" Margin="0,130,0,0" VerticalAlignment="Top" Width="190" Height="50" BorderThickness="0" FontSize="24" Foreground="White" Background="{x:Null}" FontWeight="Light" Click="btn_openfile_Click" Grid.Column="1"/>
-        <Button x:Name="btn_save_opened" Template="{StaticResource ButtonTemplate}" Content="сохранить" HorizontalAlignment="Left" Margin="0,270,0,0" VerticalAlignment="Top" Width="190" Height="50" HorizontalContentAlignment="Center" FontSize="24" FontWeight="Light" BorderThickness="0" Foreground="White" Background="{x:Null}" Grid.Column="1"/>
+        <Button x:Name="btn_save_opened" Template="{StaticResource ButtonTemplate}" Content="сохранить" HorizontalAlignment="Left" Margin="0,270,0,0" VerticalAlignment="Top" Width="190" Height="50" HorizontalContentAlignment="Center" FontSize="24" FontWeight="Light" BorderThickness="0" Foreground="White" Background="{x:Null}" Grid.Column="1" Click="btn_save_opened_Click"/>
         <Button x:Name="btn_settings_open" Click="btn_settings_Click" Template="{StaticResource ButtonTemplate}" Content="настройки" HorizontalAlignment="Left" Margin="0,340,0,0" VerticalAlignment="Top" Width="190" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White" BorderThickness="0" Grid.Column="1"/>
         <Button x:Name="btn_exit_opened" Template="{StaticResource ButtonTemplate}" Click="btn_exit_Click"  Content="выход" HorizontalAlignment="Left" Margin="0,540,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" Height="50" FontSize="24" FontWeight="Light" Background="{x:Null}" Foreground="White" HorizontalContentAlignment="Center" Grid.Column="1"/>
 
-        <Button x:Name="btn_openfolder" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,200,0,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderThickness="0" Click="btn_openfolder_Click">
+        <Button x:Name="btn_openfolder" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,200,0,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderThickness="0" Click="btn_openfolder_Click" ToolTip="Открыть папку">
             <Image Source="Resources/copy-item.png" Height="32" Width="32"/>
         </Button>
 
         <Button x:Name="btn_openfolder_opened" Template="{StaticResource ButtonTemplate}" Content="открыть папку" HorizontalAlignment="Left" Height="50" Margin="0,200,0,0" VerticalAlignment="Top" Width="190" BorderThickness="0" FontSize="24" FontWeight="Light" Foreground="White" Background="{x:Null}" Click="btn_openfolder_Click" Grid.Column="1" />
         <Button x:Name="btn_about_opened"  Click="btn_about_Click" Template="{StaticResource ButtonTemplate}" Content="о программе" HorizontalAlignment="Left" Height="50" Margin="0,410,0,0" VerticalAlignment="Top" Width="190" Background="{x:Null}" Foreground="White" FontSize="24" FontWeight="Light" BorderThickness="0" Grid.Column="1"/>
 
-        <Button  x:Name="btn_about" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,410,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" Click="btn_about_Click" >
+        <Button  x:Name="btn_about" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,410,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" Click="btn_about_Click" ToolTip="О программе" >
             <Image Source="Resources/star.png" Height="32" Width="32"/>
         </Button>
 
@@ -96,13 +96,22 @@
         <TextBox x:Name="textBox_description" Grid.Column="2" HorizontalAlignment="Left" Height="469" Margin="298,80,0,0" 
                  TextWrapping="Wrap" Text="Данная программа позволяет измерить метрики и критерии качества программы, написанной на языке C#. Спасибо, что используете именно этот продукт! Разработчики: Чумаков Роман (backend, связь: fun_q@mail.ru), 
                  Петров Алексей (frontend, связь: al1111997@yandex.ru) 2017" VerticalAlignment="Top" Width="250" Focusable="False" BorderBrush="{x:Null}" Background="#FFF4F4F5" FontWeight="Light" SelectionBrush="{x:Null}" TextAlignment="Center" FontSize="22" Cursor="Arrow"/>
-        <TextBox x:Name="textBox_settings" Grid.Column="2" HorizontalAlignment="Left" Height="50" Margin="300,30,-2,0" TextWrapping="Wrap" Text="о программе" VerticalAlignment="Top" Width="250" BorderBrush="#FFF4F4F5" BorderThickness="0" Background="#FFF4F4F5" FontWeight="Light" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Focusable="False" SelectionBrush="{x:Null}" Cursor="Arrow"/>
+        <TextBox x:Name="textBox_settings" Grid.Column="2" HorizontalAlignment="Left" Height="50" Margin="298,30,0,0" TextWrapping="Wrap" Text="о программе" VerticalAlignment="Top" Width="250" BorderBrush="#FFF4F4F5" BorderThickness="0" Background="#FFF4F4F5" FontWeight="Light" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Focusable="False" SelectionBrush="{x:Null}" Cursor="Arrow"/>
         <Button x:Name="btn_apply" Content="принять" Grid.Column="2" HorizontalAlignment="Left" Margin="310,560,0,0" VerticalAlignment="Top" Width="100" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_apply_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
         <Button x:Name="btn_closeright" Content="закрыть" Grid.Column="2" HorizontalAlignment="Left" Height="30" Margin="438,560,0,0" VerticalAlignment="Top" Width="100" BorderThickness="3" Background="{x:Null}" BorderBrush="Black" FontWeight="Light" FontSize="18" Click="btn_closeright_Click"/>
-        <Button x:Name="btn_delete" Content="удалить" Grid.Column="1" HorizontalAlignment="Left" Margin="2,505,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_delete_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
+        <Button x:Name="btn_delete" Content="удалить" Grid.Column="1" HorizontalAlignment="Left" Margin="2,485,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_delete_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
         <Button  x:Name="btn_hideUI" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,485,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" Click="btn_hideUI_Click" ToolTip="Скрыть элементы управления" >
             <Image Source="Resources/cassette.jpg" Height="32" Width="32"/>
         </Button>
+        <Button x:Name="btn_count" Content="рассчитать" Grid.Column="1" HorizontalAlignment="Left" Margin="2,537,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_delete_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
+        <CheckBox x:Name="cb_Holsted" Content="метрика Холстеда" Grid.Column="2" HorizontalAlignment="Left" Margin="298,79,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <CheckBox x:Name="cb_Svyaz" Content="связность модулей" Grid.Column="2" HorizontalAlignment="Left" Margin="298,275,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <CheckBox x:Name="cb_Berlinger" Content="метрика Берлингера" Grid.Column="2" HorizontalAlignment="Left" Margin="298,247,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <CheckBox x:Name="cb_Kafur" Content="метрика Кафура" Grid.Column="2" HorizontalAlignment="Left" Margin="298,219,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <CheckBox x:Name="cb_Chepen" Content="метрика Чепена" Grid.Column="2" HorizontalAlignment="Left" Margin="298,191,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <CheckBox x:Name="cb_Jilb" Content="метрика Джилба" Grid.Column="2" HorizontalAlignment="Left" Margin="298,163,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <CheckBox x:Name="cb_MakKeib" Content="метрика Мак-Кейба" Grid.Column="2" HorizontalAlignment="Left" Margin="298,135,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <CheckBox x:Name="cb_MakKlur" Content="метрика Мак-Клура" Grid.Column="2" HorizontalAlignment="Left" Margin="298,107,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
 
     </Grid>
 

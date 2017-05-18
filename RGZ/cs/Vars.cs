@@ -15,8 +15,6 @@ namespace RGZ.cs
         public static string AppPath = AppDomain.CurrentDomain.BaseDirectory;
         //Список полных имён файлов
         public static List<string> Files = new List<string>();
-        //Текущая позиция трека в плейлисте
-        public static int CurrentCodeNumber = 0;
         //Получаем имя файла: парсим по / чтобы получить красивое имя, а не имя полного пути
         public static string GetFileName(string file)
         {

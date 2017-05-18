@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*
+-	расчёт метрик Холстеда;
+-	расчёт метрик Джилба;
+-	расчёт метрик Мак-Кейба;
+-	расчёт метрик Мак-Клура;
+-	расчёт метрик Кафура;
+-	расчёт метрик Берлингера;
+-	расчёт метрик Чепена;
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +23,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.IO;
+using System.Windows.Forms;
 using Microsoft.Win32;
 
 namespace RGZ
@@ -22,20 +32,25 @@ namespace RGZ
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {//  Style="{StaticResource testBtn}"
+    {
         public MainWindow()
         {
             InitializeComponent();
             btn_openmenu.Visibility = Visibility.Collapsed;
             //btn_closeright_Click(this, new RoutedEventArgs());
             btn_delete.Visibility = Visibility.Collapsed;
+            btn_count.Visibility = Visibility.Collapsed;
+            btn_settings_Click(this, new RoutedEventArgs());
+            btn_openmenu_Click(this, new RoutedEventArgs());
+            showMetrics();
         }
 
         private void btn_Close_Click(object sender, RoutedEventArgs e)
         {
             this.Close(); //закрыть программу на крестик (Х)
         }
-      
+
+
 
         private void btn_closemenu_Click(object sender, RoutedEventArgs e)
         {
@@ -45,7 +60,7 @@ namespace RGZ
                 da.From = 250;
                 da.To = rect_menu.Width - 200;
                 da.Duration = TimeSpan.FromSeconds(0.22222);
-              /*--------------------------------------------------------*/
+                /*--------------------------------------------------------*/
                 rect_menu.BeginAnimation(Rectangle.WidthProperty, da);
                 btn_closemenu.Visibility = Visibility.Collapsed;
                 btn_openmenu.Visibility = Visibility.Visible;
@@ -57,12 +72,33 @@ namespace RGZ
                 btn_about_opened.Visibility = Visibility.Collapsed;
                 textBox_name.Visibility = Visibility.Collapsed;
                 /*--------------------------------------------------------*/
-
-
-
-
+                btn_hideUI.IsEnabled = true;
             }
 
+        }
+
+        public void hideMetrics()
+        {
+            cb_Berlinger.Visibility = Visibility.Collapsed;
+            cb_Chepen.Visibility = Visibility.Collapsed;
+            cb_Holsted.Visibility = Visibility.Collapsed;
+            cb_Jilb.Visibility = Visibility.Collapsed;
+            cb_Kafur.Visibility = Visibility.Collapsed;
+            cb_MakKeib.Visibility = Visibility.Collapsed;
+            cb_MakKlur.Visibility = Visibility.Collapsed;
+            cb_Svyaz.Visibility = Visibility.Collapsed;
+        }
+
+        public void showMetrics()
+        {
+            cb_Svyaz.Visibility = Visibility.Visible;
+            cb_MakKlur.Visibility = Visibility.Visible;
+            cb_MakKeib.Visibility = Visibility.Visible;
+            cb_Kafur.Visibility = Visibility.Visible;
+            cb_Jilb.Visibility = Visibility.Visible;
+            cb_Holsted.Visibility = Visibility.Visible;
+            cb_Chepen.Visibility = Visibility.Visible;
+            cb_Berlinger.Visibility = Visibility.Visible;
         }
 
         private void btn_openmenu_Click(object sender, RoutedEventArgs e)
@@ -72,7 +108,7 @@ namespace RGZ
             da.To = 250;
             da.Duration = TimeSpan.FromSeconds(0.07);
             rect_menu.BeginAnimation(Rectangle.WidthProperty, da);
-         /*--------------------------------------------------------*/
+            /*--------------------------------------------------------*/
             btn_openmenu.Visibility = Visibility.Collapsed;
             btn_closemenu.Visibility = Visibility.Visible;
             btn_openfile_opened.Visibility = Visibility.Visible;
@@ -83,7 +119,10 @@ namespace RGZ
             btn_about_opened.Visibility = Visibility.Visible;
             textBox_name.Visibility = Visibility.Visible;
             rect_menu.Height = 568;
-          /*--------------------------------------------------------*/
+            /*--------------------------------------------------------*/
+            if(btn_delete.Visibility == Visibility.Visible)
+            btn_hideUI_Click(this, new RoutedEventArgs());
+            btn_hideUI.IsEnabled = false;
         }
 
         private void btn_exit_Click(object sender, RoutedEventArgs e)
@@ -96,9 +135,14 @@ namespace RGZ
             this.WindowState = WindowState.Minimized; //свернуть
         }
 
+        private void Rect_navigation_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove(); //перетаскивание окна
+        }
+
         private void btn_settings_Click(object sender, RoutedEventArgs e)
         {
-            if (rect_menu.Height == 568 && rect_menu.Width == 250 || rect_menu.Width==50)
+            if (rect_menu.Height == 568 && rect_menu.Width == 250 || rect_menu.Width == 50)
             {
                 textBox_settings.Text = "настройки";
                 textBox_description.Visibility = Visibility.Collapsed;
@@ -108,11 +152,11 @@ namespace RGZ
                 textBox_settings.Visibility = Visibility.Visible;
                 if (rect_menu.Width == 250)
                 {
-                    
                     btn_closemenu_Click(this, new RoutedEventArgs());
                 }
-            }  
-           else if(rect_settings.Height == 568 && rect_settings.Visibility == Visibility.Collapsed && rect_menu.Width == 50 )
+                showMetrics();
+            }
+            else if (rect_settings.Height == 568 && rect_settings.Visibility == Visibility.Collapsed && rect_menu.Width == 50)
             {
                 textBox_description.Visibility = Visibility.Collapsed;
                 btn_apply.Visibility = Visibility.Visible;
@@ -120,13 +164,15 @@ namespace RGZ
                 rect_settings.Visibility = Visibility.Visible;
                 textBox_settings.Visibility = Visibility.Visible;
                 textBox_settings.Text = "настройки";
+                showMetrics();
+
             }
-           
+
         }
 
         private void btn_about_Click(object sender, RoutedEventArgs e)
         {
-            if (rect_menu.Height == 568 && rect_menu.Width == 250 || rect_menu.Width==50)
+            if (rect_menu.Height == 568 && rect_menu.Width == 250 || rect_menu.Width == 50)
             {
                 textBox_settings.Text = "о программе";
                 textBox_description.Visibility = Visibility.Visible;
@@ -136,11 +182,11 @@ namespace RGZ
                 textBox_settings.Visibility = Visibility.Visible;
                 if (rect_menu.Width == 250)
                 {
-                   
                     btn_closemenu_Click(this, new RoutedEventArgs());
                 }
+                hideMetrics();
             }
-           else if (rect_settings.Height == 568 && rect_settings.Visibility == Visibility.Collapsed && rect_menu.Width == 50)
+            else if (rect_settings.Height == 568 && rect_settings.Visibility == Visibility.Collapsed && rect_menu.Width == 50)
             {
                 textBox_description.Visibility = Visibility.Visible;
                 btn_apply.Visibility = Visibility.Visible;
@@ -148,42 +194,70 @@ namespace RGZ
                 rect_settings.Visibility = Visibility.Visible;
                 textBox_settings.Visibility = Visibility.Visible;
                 textBox_settings.Text = "о программе";
+                hideMetrics();
             }
-            
+
+
         }
 
         private void btn_apply_Click(object sender, RoutedEventArgs e)
         {
             if (rect_settings.Height == 568 && rect_settings.Width == 250 || rect_settings.Width == 50)
             {
-              
                 textBox_description.Visibility = Visibility.Collapsed;
                 rect_settings.Visibility = Visibility.Collapsed;
                 textBox_settings.Visibility = Visibility.Collapsed;
                 btn_apply.Visibility = Visibility.Collapsed;
                 btn_closeright.Visibility = Visibility.Collapsed;
+                hideMetrics();
             }
+
         }
 
         private void btn_closeright_Click(object sender, RoutedEventArgs e)
         {
             if (rect_settings.Height == 568 && rect_settings.Width == 250 || rect_settings.Width == 50)
             {
-               
+
                 textBox_description.Visibility = Visibility.Collapsed;
                 rect_settings.Visibility = Visibility.Collapsed;
                 textBox_settings.Visibility = Visibility.Collapsed;
                 btn_apply.Visibility = Visibility.Collapsed;
                 btn_closeright.Visibility = Visibility.Collapsed;
+                hideMetrics();
             }
         }
         private void btn_hideUI_Click(object sender, RoutedEventArgs e)
         {
-            if (btn_delete.Visibility == Visibility.Visible)
+            if (btn_delete.Visibility == Visibility.Visible && btn_count.Visibility == Visibility.Visible)
+            {
                 btn_delete.Visibility = Visibility.Collapsed;
-            else btn_delete.Visibility = Visibility.Visible;
-       
+                btn_count.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                btn_delete.Visibility = Visibility.Visible;
+                btn_count.Visibility = Visibility.Visible;
+            }
+
         }
+
+        private void btn_save_opened_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog();
+
+            sfd.Filter = "Текстовый файл (*.txt)|*.txt";
+            bool? res = sfd.ShowDialog();
+            if (res == true)
+            {
+                using (StreamWriter sw = new StreamWriter(sfd.OpenFile(), System.Text.Encoding.Default))
+                {
+                    sw.Write(label_codes.Text);
+                    sw.Close();
+                }
+            }
+        }
+
         //РАБОТА С ФАЙЛОВОЙ СИСТЕМОЙ.........................................................................................................
         /// <summary>
         /// Доавление файлов 
@@ -193,7 +267,7 @@ namespace RGZ
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "C# source (.cs)|*.cs";
-           //лист путей к файлам
+            //лист путей к файлам
             dlg.Multiselect = true;//можно выбрать много файлов
             bool? res = dlg.ShowDialog();//вызываем окно открытия
 
@@ -212,38 +286,56 @@ namespace RGZ
                     paths.Add(dlg.FileNames[i]);//добавляем модули к листу
                 }
                 LoadingFiles(cs.Vars.Files);//загружаем каждый файл
-                //загружаем код из вкладок (какая-то херь. как ее сделать то)
+                                            //загружаем код из вкладок (какая-то херь. как ее сделать то)
+                if (rect_settings.Height == 568 && rect_settings.Width == 250 && rect_menu.Width == 250)
+                {
+                    btn_closeright_Click(this, new RoutedEventArgs());
+                    btn_closemenu_Click(this, new RoutedEventArgs());
+                    btn_hideUI_Click(this, new RoutedEventArgs());
+                }
             }
         }
         private void btn_openfolder_Click(object sender, RoutedEventArgs e)
         {
-            //System.Windows.FolderBrowserDialog dlg = new FolderBrowserDialog();
-            //DialogResult result = dlg.ShowDialog();
-            //dlg.ShowNewFolderButton = false;
-            //if (System.Windows.Forms.DialogResult.OK == result)
-            //{
-            //    foreach (string currentFile in System.IO.Directory.GetFiles(dlg.SelectedPath, "*.cs", SearchOption.AllDirectories))
-
-            //    {
-            //        for (int i = 0; i < dlg.FileNames.Length; i++)
-            //        {
-            //            if (dlg.FileNames[i].Length < 4 || (dlg.FileNames[i].Length > 3 && (dlg.FileNames[i][dlg.FileNames[i].Length - 1] != 's' || dlg.FileNames[i][dlg.FileNames[i].Length - 2] != 'c' || dlg.FileNames[i][dlg.FileNames[i].Length - 3] != '.')))
-            //            {
-            //                paths.Clear();
-            //                //Бросить исключение "Недопустимое имя файла"     
-            //            }
-            //           cs.Vars.Files.Add(dlg.FileNames[i]);
-            //   listBox_namelist.Items.Add(cs.Vars.GetFileName(dlg.FileNames[i])); //добавляем вкладки
-            //            paths.Add(dlg.FileNames[i]);//добавляем модули к листу
-            //        }
-            //        LoadingFiles(paths);//загружаем каждый файл
-            //        label_codes.Content = paths;//загружаем код из вкладок (какая-то херь. как ее сделать то)
-            //    }
-            //}
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            DialogResult result = dlg.ShowDialog();
+            dlg.ShowNewFolderButton = false;
+            if (System.Windows.Forms.DialogResult.OK == result)//если папка выбрана
+            {
+                foreach (string currentFile in System.IO.Directory.GetFiles(dlg.SelectedPath, "*.cs", SearchOption.AllDirectories))
+                {
+                    cs.Vars.Files.Add(currentFile);
+                    listBox_namelist.Items.Add(cs.Vars.GetFileName(currentFile)); //добавляем вкладки
+                    paths.Add(currentFile);//добавляем модули к листу        
+                }
+                LoadingFiles(paths);//загружаем каждый файл
+                if (rect_settings.Height == 568 && rect_settings.Width == 250 && rect_menu.Width == 250)
+                {
+                    btn_closeright_Click(this, new RoutedEventArgs());
+                    btn_closemenu_Click(this, new RoutedEventArgs());
+                    btn_hideUI_Click(this, new RoutedEventArgs());
+                }
+            }
         }
         private void btn_delete_Click(object sender, RoutedEventArgs e)
         {
-           // cs.Vars.Files.RemoveAll(cs.Vars.CurrentCodeNumber);
+            if (listBox_namelist.Items.Count > 1 && listBox_namelist.SelectedIndex == listBox_namelist.Items.Count - 1)
+            {
+                listBox_namelist.SelectedIndex += 1;
+                listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex - 1);
+            }
+            
+        }
+
+        private void listBox_namelist_SelectionChanged(object sender, SelectionChangedEventArgs e)//выбор файла
+        {
+            label_codes.Text = "Код модуля:\n";
+            FileStream fs = new FileStream(cs.Vars.Files[listBox_namelist.SelectedIndex], FileMode.Open);
+            StreamReader sr = new StreamReader(fs);
+            while (!sr.EndOfStream)
+                label_codes.Text += sr.ReadLine() + "\n";
+            sr.Close();
+            fs.Close();
         }
 
         //ОБРАБОТКА ФАЙЛОВ...................................................................................................................
@@ -263,22 +355,28 @@ namespace RGZ
                 while (!sr.EndOfStream)//читаем файл до конца
                 {
                     ModuleText.Add(sr.ReadLine());
-                    
                 }
                 //результаты нужно куда-нибудь вывести или сохранить
                 foreach (string s in ModuleText)
-                    for(int i =0; i < ModuleText.Count; i++)
-                label_codes.Content = ModuleText[i];
+                    label_codes.Text += s;
                 int CommentQuantity = 0;
                 ModuleText = RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
-                ModuleText = ModuleProcessing(ModuleText);//обработка модуля от лишних строк и разделителей
-                СalculationHolstedsMetrics(ModuleText);//вычисляем метрики Холстеда
+                ModuleText = ModuleMinimizing(ModuleText);//обработка модуля от лишних строк и разделителей
+                ModuleText = ModuleProcessing(ModuleText);//обнуление строковых констант
+                ModuleText = OneOperatorOneString(ModuleText);//"один оператор <=> одна строка"
+                ModuleText = OneOperatorOneString(ModuleText);
+                //восстановление имён, удаление шапок 
+                //СalculationHolstedsMetrics(ModuleText);//вычисляем метрики Холстеда
                 //System.Windows.MessageBox.Show(numberString.ToString());
+                sr.Close();
+                fs.Close();
             }
         }
-        private List<string> ModuleProcessing(List<string> Text)//обработка от лишних пробелов и пустых строк
+        private List<string> ModuleMinimizing(List<string> Text)//обработка от лишних пробелов и пустых строк
         {
+            //всё работает
             List<string> result = new List<string>();
+            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
             for (int i = 0; i < Text.Count; i++)//идём по листу
             {
                 string Temp = "";
@@ -289,36 +387,160 @@ namespace RGZ
                         Temp += Text[i][j];
                         while (j < Text[i].Length && Char.IsSeparator(Text[i][j]))
                             j++;
+                        j--;
                     }
                     else
                         Temp += Text[i][j];
                 }
                 if (Temp != "" && !(Temp.Length == 1 && Char.IsSeparator(Temp[0])))
+                {
                     result.Add(Temp);
+                    label_codes.Text += Temp + "\n";//после тестирования нужно удалить
+                }
+            }
+            return result;
+        }
+        private List<string> OneOperatorOneString(List<string> Text)
+        {
+            List<string> result = new List<string>();
+            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
+            string Temp = "";
+            foreach (string str in Text)
+            {
+                foreach (char x in str)
+                {
+                    if (x != '{')
+                        Temp += x;
+                    if (x == ';' || x == '{' || x == '}')
+                    {
+                        result.Add(Temp);
+                        label_codes.Text += Temp + "\n";//после тестирования нужно удалить
+                        Temp = "";
+                        if (x == '{')//чтобы фигурную скобку отделить
+                        {
+                            Temp += x;
+                            result.Add(Temp);
+                            label_codes.Text += Temp + "\n";//после тестирования нужно удалить
+                            Temp = "";
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+        private List<string> ModuleProcessing(List<string> Text)
+        {
+            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
+            List<String> result = new List<string>();
+            string Temp = "";
+            bool IsCarretIntoConstString = false, IsCarretIntoConstChar = false;
+            for (int i = 0; i < Text.Count; i++)//идем по модулю
+            {
+                Temp = "";
+                for (int j = 0; j < Text[i].Length; j++)
+                {
+                    if (!IsCarretIntoConstString && !IsCarretIntoConstChar)
+                    {
+                        if (Text[i][j] == '"' && (j == 0 || Text[i][j - 1] != '\\'))
+                        {
+                            Temp += Text[i][j];
+                            j++;
+                            IsCarretIntoConstString = true;
+                            while (j < Text[i].Length && !(Text[i][j] == '"' && Text[i][j - 1] != '\\'))
+                            {
+                                j++;
+                            }
+                            if (j < Text[i].Length && j > 0 && Text[i][j] == '"' && Text[i][j - 1] != '\\')
+                            {
+                                Temp += Text[i][j];
+                                IsCarretIntoConstString = false;
+                                j++;
+                            }
+                        }
+                        if (j < Text[i].Length && Text[i][j] == '\'')
+                        {
+                            Temp += Text[i][j];
+                            j++;
+                            IsCarretIntoConstChar = true;
+                            while (j < Text[i].Length && !(Text[i][j] == '\'' && Text[i][j - 1] != '\\'))
+                            {
+                                j++;
+                            }
+                            if (j < Text[i].Length && Text[i][j] == '\'' && Text[i][j - 1] != '\\')
+                            {
+                                Temp += Text[i][j];
+                                IsCarretIntoConstChar = false;
+                                j++;
+                            }
+                        }
+                    }
+                    if (IsCarretIntoConstString)
+                    {
+                        while (j < Text[i].Length && !(Text[i][j] == '"' && Text[i][j - 1] != '\\'))
+                        {
+                            j++;
+                        }
+                        if (j < Text[i].Length && j > 0 && Text[i][j] == '"' && Text[i][j - 1] != '\\')
+                        {
+                            Temp += Text[i][j];
+                            IsCarretIntoConstString = false;
+                            j++;
+                        }
+                    }
+                    if (IsCarretIntoConstChar)
+                    {
+                        while (j < Text[i].Length && !(Text[i][j] == '\'' && Text[i][j - 1] != '\\'))
+                        {
+                            j++;
+                        }
+                        if (j < Text[i].Length && Text[i][j] == '\'' && Text[i][j - 1] != '\\')
+                        {
+                            Temp += Text[i][j];
+                            IsCarretIntoConstChar = false;
+                            j++;
+                        }
+                    }
+                    if (j < Text[i].Length)
+                        Temp += Text[i][j];
+
+                }
+                result.Add(Temp);
+                label_codes.Text += Temp + "\n";//после тестирования нужно удалить
             }
             return result;
         }
 
         private List<string> RemoveComments(List<string> Text, ref int CommentsQuantity)//считает и удаляет комментарии
         {
-            //Считается сколько строк содержат комментарий
+            //Считается, сколько строк содержит комментарий
             List<string> Result = new List<string>();
-            bool IsMultyStringComment = false;
+            int IsMultyStringComment = 0;
+            string Temp = "";
+            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
             for (int i = 0; i < Text.Count; i++)//идём по листу
             {
-                if (IsMultyStringComment)//если многострочный коммент
+                bool EndOfString = false;
+                int IndexOfContinuous = 0;
+                Temp = "";
+                if (IsMultyStringComment > 0)//если многострочный коммент
                 {
                     CommentsQuantity++;
                     for (int j = 0; j < Text[i].Length; j++)
                         if ((j != Text[i].Length - 1) && Text[i][j] == '*' && Text[i][j + 1] == '/')
-                            IsMultyStringComment = false;
+                        {
+                            if (j == Text[i].Length - 2)
+                                EndOfString = true;
+                            else IndexOfContinuous = j + 2;
+                            IsMultyStringComment--;
+                            break;
+                        }
                 }
-                else
-                    for (int j = 0; j < Text[i].Length; j++)
+                if (EndOfString) continue;
+                if (IsMultyStringComment == 0) // тут не надо менять на елс, а то кусок строки может быть не проверен 
+                    for (int j = IndexOfContinuous; j < Text[i].Length; j++)
                     {
                         //если однострочный или многострочный коммент
-                        if (Text[i][j] == '/' && (i != Text[i].Length - 1))
-                        {
+                        if (Text[i][j] == '/' && (j != Text[i].Length - 1))
                             if (Text[i][j + 1] == '/')
                             {
                                 CommentsQuantity++;
@@ -326,22 +548,88 @@ namespace RGZ
                             }
                             else if (Text[i][j + 1] == '*')
                             {
-                                IsMultyStringComment = true;
+                                IsMultyStringComment++;
                                 CommentsQuantity++;
+                                while ((j < Text[i].Length - 1 && !(Text[i][j] != '*' && Text[i][j + 1] != '/')) || j == Text[i].Length - 1)
+                                    j++;
+                                if (j < Text[i].Length - 1 && Text[i][j] == '*' && Text[i][j + 1] == '/')
+                                {
+                                    j += 2;
+                                    IsMultyStringComment--;
+                                }
+                            }
+                        if ((j != Text[i].Length - 1) && Text[i][j] == '*' && Text[i][j + 1] == '/')
+                        {
+                            if (j == Text[i].Length - 2)
+                            {
+                                EndOfString = true;
                                 break;
                             }
+                            else j += 2;
+                            IsMultyStringComment--;
                         }
-                       // Result[i] += Text[i][j];//может вылетит, погляжу
+                        if (IsMultyStringComment == 0 && j < Text[i].Length)
+                            Temp += Text[i][j];
                     }
+                Result.Add(Temp);
+                label_codes.Text += Temp + "\n";//после тестирования нужно удалить
             }
             return Result;
         }
 
+        private List<string> RestorationOfNameFromNickname(List<string> Text)//восстановление псевдонимов
+        {
+            List<string> Result = new List<string>();
+            int i = 0;
+            string Key = "", Value = "";
+            string Temp = "";
+            Dictionary<string, string> NicknameOldnameDictionary = new Dictionary<string, string>();//ключ псевдоним, значение стандартное имя
+            while (!Text[i].Contains("class"))//после этого слова юзинги нельзя писать
+            {
+                if (Text[i].Contains("using") && Text[i].IndexOf('=') != -1)
+                {
+                    int j = Text[i].IndexOf('g') + 2;
+                    while (!Char.IsSeparator(Text[i][j]))
+                    {
+                        Key += Text[i][j];
+                        j++;
+                    }
+                    j = Text[i].IndexOf('=') + 2;
+                    while (!Char.IsSeparator(Text[i][j]))
+                    {
+                        Value += Text[i][j];
+                        j++;
+                    }
+                    NicknameOldnameDictionary.Add(Key, Value);//составлен словарь псевдонимов
+                }
+                Result.Add(Text[i]);
+                i++;
+            }
+            for (int j = i; j < Text.Count; j++)
+            {
+                Temp = Text[i];
+                foreach (string x in NicknameOldnameDictionary.Keys)
+                {
+                    for (int k = 0; k < x.Length; k++)
+                    {
+                        int index = Temp.IndexOf(x);
+                        if (index != -1)
+                        {
+                            if ((i == 0 || (Temp[index - 1] == '.' || Char.IsSeparator(Temp[index - 1]))) && (Temp[index + x.Length + 1] == '.' || Char.IsSeparator(Temp[index + x.Length + 1])))
+                            {
+                                //допишу сегодня-завтра
+                            }
+                        }
+                    }
+                }
+            }
+            return Result;
+        }
         private double[] СalculationHolstedsMetrics(List<string> Text)//возвращает значение метрик Холстеда
         {//теоретические величины дописать, елсы для ускорения кое-где повставлять
             //метрики в массиве: длина программы, объём программы, уровень качества программирования,
             //сложность понимания программы, трудоёмкость кодирования, уровень языка выражения
-            bool[] operators = new bool[77];//массив "встречен ли оператор"
+            bool[] operators = new bool[78];//массив "встречен ли оператор"
             List<string> Function = new List<string>(), TemplateClasses = new List<string>();//заполнить шаблонами
 
             double[] results = new double[6];//результаты
@@ -364,7 +652,7 @@ namespace RGZ
             >=, <=, is, &&, ||, !, >>, <<(20), &, |, ^, ~, +=, -=, *=, /=, =, %=(30), ^=, &=, |=, >>=, <<=, continue, break, return,
             goto, if(...)(40), for(...), while(...), foreach(...), switch(...), catch(...), throw, try, finally, (type), as(50), ., 
             [...], ->, ?., ?[, case, new, stacalloc, typeof, sizeof(60), nameof, {...}, ?:, yield, *(работа с указателями)
-            fixed, lock, checked, unchecked, await, ::, =>, ??, true, false*/
+            fixed, lock, checked, unchecked, await, ::, =>, ??, true, false, using()*/
 
             int OperatorsQuantity = 0;//количество операторов
             foreach (string x in Text)
@@ -416,7 +704,7 @@ namespace RGZ
                         }
                     }
                     //если '(' от оператора приведения типов или функции
-                    if (x[i] == '(')
+                    if (i > 1 && x[i] == '(' && ((Char.IsSeparator(x[i - 1]) && (Char.IsLetterOrDigit(x[i - 2]) || x[i - 2] == '_')) || Char.IsLetter(x[i - 1]) || x[i - 1] == '_') || (i > 0 && x[i] == '(' && ((Char.IsLetterOrDigit(x[i - 1]) || x[i - 1] == '_'))))
                     {
                         bool IsCoertionOperator = false;
                         int h = i;
@@ -469,10 +757,16 @@ namespace RGZ
                             Name += x[h];
                             h++;
                         }
+                        i = h;
                         if (TemplateClasses.Contains(Name))
                         {
                             while (x[h] != '>') h++;
                             i = h;
+                        }
+                        else if (Name == "using")
+                        {
+                            operators[77] = true;
+                            OperatorsQuantity++;
                         }
                         //словесные операторы
                         else if (Name == "continue")
@@ -849,7 +1143,11 @@ namespace RGZ
             return OperatorsQuantity;
         }
 
-       
+
+
+
+
+
 
 
 
@@ -862,3 +1160,4 @@ namespace RGZ
         //}
     }
 }
+
