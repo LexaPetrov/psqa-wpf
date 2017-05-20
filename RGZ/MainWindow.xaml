@@ -37,7 +37,7 @@
 
 
         <Button x:Name="btn_Close" Template="{StaticResource ButtonTemplate}" Content="X" VerticalAlignment="Top"
-                Height="30" Width="50" ToolTip="Close" Click="btn_Close_Click" FontFamily="Arial" FontSize="14" 
+                Height="30" Width="50" ToolTip="Close" Click="btn_exit_Click" FontFamily="Arial" FontSize="14" 
                 Background="#FF803878" BorderThickness="0" Foreground="White" Grid.Column="2" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 
         <Button x:Name="btn_Minimize" Template="{StaticResource ButtonTemplate}" Content="-" HorizontalAlignment="Center" VerticalAlignment="Top" 
@@ -99,11 +99,11 @@
         <TextBox x:Name="textBox_settings" Grid.Column="2" HorizontalAlignment="Left" Height="50" Margin="298,30,0,0" TextWrapping="Wrap" Text="о программе" VerticalAlignment="Top" Width="250" BorderBrush="#FFF4F4F5" BorderThickness="0" Background="#FFF4F4F5" FontWeight="Light" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Focusable="False" SelectionBrush="{x:Null}" Cursor="Arrow"/>
         <Button x:Name="btn_apply" Content="принять" Grid.Column="2" HorizontalAlignment="Left" Margin="310,560,0,0" VerticalAlignment="Top" Width="100" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_apply_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
         <Button x:Name="btn_closeright" Content="закрыть" Grid.Column="2" HorizontalAlignment="Left" Height="30" Margin="438,560,0,0" VerticalAlignment="Top" Width="100" BorderThickness="3" Background="{x:Null}" BorderBrush="Black" FontWeight="Light" FontSize="18" Click="btn_closeright_Click"/>
-        <Button x:Name="btn_delete" Content="удалить" Grid.Column="1" HorizontalAlignment="Left" Margin="2,485,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_delete_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
+        <Button x:Name="btn_delete" Content="удалить" Grid.Column="1" HorizontalAlignment="Left" Margin="2,520,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_delete_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
         <Button  x:Name="btn_hideUI" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,485,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" Click="btn_hideUI_Click" ToolTip="Скрыть элементы управления" >
             <Image Source="Resources/cassette.jpg" Height="32" Width="32"/>
         </Button>
-        <Button x:Name="btn_count" Content="рассчитать" Grid.Column="1" HorizontalAlignment="Left" Margin="2,537,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_delete_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
+        <Button x:Name="btn_count" Content="рассчитать" HorizontalAlignment="Left" Margin="2,490,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center" Grid.Column="1"/>
         <CheckBox x:Name="cb_Holsted" Content="метрика Холстеда" Grid.Column="2" HorizontalAlignment="Left" Margin="298,79,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_Svyaz" Content="связность модулей" Grid.Column="2" HorizontalAlignment="Left" Margin="298,275,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_Berlinger" Content="метрика Берлингера" Grid.Column="2" HorizontalAlignment="Left" Margin="298,247,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
@@ -112,6 +112,11 @@
         <CheckBox x:Name="cb_Jilb" Content="метрика Джилба" Grid.Column="2" HorizontalAlignment="Left" Margin="298,163,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_MakKeib" Content="метрика Мак-Кейба" Grid.Column="2" HorizontalAlignment="Left" Margin="298,135,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_MakKlur" Content="метрика Мак-Клура" Grid.Column="2" HorizontalAlignment="Left" Margin="298,107,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+        <Button x:Name="btn_deleteall" Content="удалить всё" Grid.Column="1" HorizontalAlignment="Left" Margin="2,550,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center" Click="btn_deleteall_Click"/>
+        <Label x:Name="label_loading" Content="Данные загружаются, подождите..." Margin="0,26,0,0" VerticalAlignment="Top" Width="798" Grid.ColumnSpan="3" Height="568" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalContentAlignment="Center" ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="White" FontSize="24" Opacity="0.7"/>
+        <TextBox x:Name="textBox_path" Grid.Column="2" HorizontalAlignment="Left" Height="43" Margin="298,469,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" BorderBrush="{x:Null}" FontSize="16" Background="#FFF4F4F5" Focusable="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Button x:Name="btn_framework" Content="выбрать путь для framework .Net" Grid.Column="2" HorizontalAlignment="Left" Height="30" Margin="310,517,0,0" VerticalAlignment="Top" Width="228" BorderThickness="3" Background="{x:Null}" BorderBrush="Black" FontWeight="Light" FontSize="18" Click="btn_framework_Click"/>
+        <Label x:Name="label_info" Content="  Текущий путь к папке, &#xD;&#xA;    содержащей файлы      &#xD;&#xA;         .Net FrameWork &#xD;&#xA;    (необходимо указать&#xD;&#xA; для вычисления метрик)" Grid.Column="2" HorizontalAlignment="Left" Margin="298,303,0,0" VerticalAlignment="Top" Width="250" Height="161" HorizontalContentAlignment="Center" FontSize="22" FontWeight="Light"/>
 
     </Grid>
 

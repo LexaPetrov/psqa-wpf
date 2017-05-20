@@ -25,6 +25,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using RGZ.Properties;
 
 namespace RGZ
 {
@@ -40,17 +41,13 @@ namespace RGZ
             //btn_closeright_Click(this, new RoutedEventArgs());
             btn_delete.Visibility = Visibility.Collapsed;
             btn_count.Visibility = Visibility.Collapsed;
+            btn_deleteall.Visibility = Visibility.Collapsed;
             btn_settings_Click(this, new RoutedEventArgs());
             btn_openmenu_Click(this, new RoutedEventArgs());
+            label_loading.Visibility = Visibility.Collapsed;
             showMetrics();
+            textBox_path.Text = Settings.Default["fwork"].ToString();
         }
-
-        private void btn_Close_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close(); //закрыть программу на крестик (Х)
-        }
-
-
 
         private void btn_closemenu_Click(object sender, RoutedEventArgs e)
         {
@@ -87,6 +84,9 @@ namespace RGZ
             cb_MakKeib.Visibility = Visibility.Collapsed;
             cb_MakKlur.Visibility = Visibility.Collapsed;
             cb_Svyaz.Visibility = Visibility.Collapsed;
+            label_info.Visibility = Visibility.Collapsed;
+            textBox_path.Visibility = Visibility.Collapsed;
+            btn_framework.Visibility = Visibility.Collapsed;
         }
 
         public void showMetrics()
@@ -99,6 +99,9 @@ namespace RGZ
             cb_Holsted.Visibility = Visibility.Visible;
             cb_Chepen.Visibility = Visibility.Visible;
             cb_Berlinger.Visibility = Visibility.Visible;
+            label_info.Visibility = Visibility.Visible;
+            textBox_path.Visibility = Visibility.Visible;
+            btn_framework.Visibility = Visibility.Visible;
         }
 
         private void btn_openmenu_Click(object sender, RoutedEventArgs e)
@@ -127,7 +130,11 @@ namespace RGZ
 
         private void btn_exit_Click(object sender, RoutedEventArgs e)
         {
-            this.Close(); //зкрыть программу
+            var result = System.Windows.MessageBox.Show("Сохранить изменения?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+                btn_save_opened_Click(this, new RoutedEventArgs());
+            else if (result == MessageBoxResult.No)
+                Close(); //зкрыть программу
         }
 
         private void Minimize_MouseDown(object sender, RoutedEventArgs e)
@@ -233,11 +240,13 @@ namespace RGZ
             {
                 btn_delete.Visibility = Visibility.Collapsed;
                 btn_count.Visibility = Visibility.Collapsed;
+                btn_deleteall.Visibility = Visibility.Collapsed;
             }
             else
             {
                 btn_delete.Visibility = Visibility.Visible;
                 btn_count.Visibility = Visibility.Visible;
+                btn_deleteall.Visibility = Visibility.Visible;
             }
 
         }
@@ -245,7 +254,6 @@ namespace RGZ
         private void btn_save_opened_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog();
-
             sfd.Filter = "Текстовый файл (*.txt)|*.txt";
             bool? res = sfd.ShowDialog();
             if (res == true)
@@ -258,6 +266,37 @@ namespace RGZ
             }
         }
 
+        private void btn_delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (listBox_namelist.Items.Count > 1 && listBox_namelist.SelectedIndex == listBox_namelist.Items.Count - 1)
+            {
+                listBox_namelist.SelectedIndex++;
+                listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex - 1);
+            }
+
+        }
+        private void btn_deleteall_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (listBox_namelist.Items.Count != 0)
+                for (int i = 0; i < listBox_namelist.Items
+                      .Count; i++)
+                    listBox_namelist.Items.RemoveAt(i);
+        }
+
+        private void btn_framework_Click(object sender, RoutedEventArgs e)
+        {
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            DialogResult result = dlg.ShowDialog();
+            dlg.ShowNewFolderButton = false;
+            if (System.Windows.Forms.DialogResult.OK == result)//если папка выбрана
+            {
+                textBox_path.Text = dlg.SelectedPath;
+            }
+            Settings.Default["fwork"] = textBox_path.Text;
+            Settings.Default.Save();
+            textBox_path.Text = Settings.Default["fwork"].ToString();
+        }
         //РАБОТА С ФАЙЛОВОЙ СИСТЕМОЙ.........................................................................................................
         /// <summary>
         /// Доавление файлов 
@@ -281,19 +320,23 @@ namespace RGZ
                         paths.Clear();
                         //Бросить исключение "Недопустимое имя файла"     
                     }
+                 
                     cs.Vars.Files.Add(dlg.FileNames[i]);
                     listBox_namelist.Items.Add(cs.Vars.GetFileName(dlg.FileNames[i])); //добавляем вкладки
                     paths.Add(dlg.FileNames[i]);//добавляем модули к листу
                 }
+                
                 LoadingFiles(cs.Vars.Files);//загружаем каждый файл
-                                            //загружаем код из вкладок (какая-то херь. как ее сделать то)
+                                     
                 if (rect_settings.Height == 568 && rect_settings.Width == 250 && rect_menu.Width == 250)
                 {
                     btn_closeright_Click(this, new RoutedEventArgs());
                     btn_closemenu_Click(this, new RoutedEventArgs());
                     btn_hideUI_Click(this, new RoutedEventArgs());
+                    
                 }
             }
+            
         }
         private void btn_openfolder_Click(object sender, RoutedEventArgs e)
         {
@@ -317,25 +360,19 @@ namespace RGZ
                 }
             }
         }
-        private void btn_delete_Click(object sender, RoutedEventArgs e)
-        {
-            if (listBox_namelist.Items.Count > 1 && listBox_namelist.SelectedIndex == listBox_namelist.Items.Count - 1)
-            {
-                listBox_namelist.SelectedIndex += 1;
-                listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex - 1);
-            }
-            
-        }
-
+       
         private void listBox_namelist_SelectionChanged(object sender, SelectionChangedEventArgs e)//выбор файла
         {
             label_codes.Text = "Код модуля:\n";
             FileStream fs = new FileStream(cs.Vars.Files[listBox_namelist.SelectedIndex], FileMode.Open);
             StreamReader sr = new StreamReader(fs);
             while (!sr.EndOfStream)
+            {
                 label_codes.Text += sr.ReadLine() + "\n";
+            }
             sr.Close();
             fs.Close();
+          
         }
 
         //ОБРАБОТКА ФАЙЛОВ...................................................................................................................
@@ -345,6 +382,7 @@ namespace RGZ
         /// <param name="Files"></param>
         private void LoadingFiles(List<string> Files)
         {
+
             foreach (string x in cs.Vars.Files)//идём по файлам
             {
                 List<string> ModuleText = new List<string>();//текст модуля
@@ -1142,6 +1180,10 @@ namespace RGZ
             }
             return OperatorsQuantity;
         }
+
+       
+
+
 
 
 
