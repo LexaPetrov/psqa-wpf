@@ -94,8 +94,8 @@
         <Rectangle x:Name="rect_settings" Grid.Column="2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="568" Margin="298,30,0,0" Stroke="Black" VerticalAlignment="Top" Width="250" StrokeDashArray="0 0"/>
 
         <TextBox x:Name="textBox_description" Grid.Column="2" HorizontalAlignment="Left" Height="469" Margin="298,80,0,0" 
-                 TextWrapping="Wrap" Text="Данная программа позволяет измерить метрики и критерии качества программы, написанной на языке C#. Спасибо, что используете именно этот продукт! Разработчики: Чумаков Роман (backend, связь: fun_q@mail.ru), 
-                 Петров Алексей (frontend, связь: al1111997@yandex.ru) 2017" VerticalAlignment="Top" Width="250" Focusable="False" BorderBrush="{x:Null}" Background="#FFF4F4F5" FontWeight="Light" SelectionBrush="{x:Null}" TextAlignment="Center" FontSize="22" Cursor="Arrow"/>
+                 TextWrapping="Wrap" Text="Данная программа позволяет измерить метрики и критерии качества программы, написанной на языке C#. 
+                  2017" VerticalAlignment="Top" Width="250" Focusable="False" BorderBrush="{x:Null}" Background="#FFF4F4F5" FontWeight="Light" SelectionBrush="{x:Null}" TextAlignment="Center" FontSize="22" Cursor="Arrow"/>
         <TextBox x:Name="textBox_settings" Grid.Column="2" HorizontalAlignment="Left" Height="50" Margin="298,30,0,0" TextWrapping="Wrap" Text="о программе" VerticalAlignment="Top" Width="250" BorderBrush="#FFF4F4F5" BorderThickness="0" Background="#FFF4F4F5" FontWeight="Light" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Focusable="False" SelectionBrush="{x:Null}" Cursor="Arrow"/>
         <Button x:Name="btn_apply" Content="принять" Grid.Column="2" HorizontalAlignment="Left" Margin="310,560,0,0" VerticalAlignment="Top" Width="100" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" Click="btn_apply_Click" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center"/>
         <Button x:Name="btn_closeright" Content="закрыть" Grid.Column="2" HorizontalAlignment="Left" Height="30" Margin="438,560,0,0" VerticalAlignment="Top" Width="100" BorderThickness="3" Background="{x:Null}" BorderBrush="Black" FontWeight="Light" FontSize="18" Click="btn_closeright_Click"/>
@@ -117,6 +117,7 @@
         <TextBox x:Name="textBox_path" Grid.Column="2" HorizontalAlignment="Left" Height="43" Margin="298,469,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" BorderBrush="{x:Null}" FontSize="16" Background="#FFF4F4F5" Focusable="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         <Button x:Name="btn_framework" Content="выбрать путь для framework .Net" Grid.Column="2" HorizontalAlignment="Left" Height="30" Margin="310,517,0,0" VerticalAlignment="Top" Width="228" BorderThickness="3" Background="{x:Null}" BorderBrush="Black" FontWeight="Light" FontSize="18" Click="btn_framework_Click"/>
         <Label x:Name="label_info" Content="  Текущий путь к папке, &#xD;&#xA;    содержащей файлы      &#xD;&#xA;         .Net FrameWork &#xD;&#xA;    (необходимо указать&#xD;&#xA; для вычисления метрик)" Grid.Column="2" HorizontalAlignment="Left" Margin="298,303,0,0" VerticalAlignment="Top" Width="250" Height="161" HorizontalContentAlignment="Center" FontSize="22" FontWeight="Light"/>
+        <Button x:Name="btn_training" Content="пройти обучение" Grid.Column="2" HorizontalAlignment="Left" Height="30" Margin="310,517,0,0" VerticalAlignment="Top" Width="228" BorderThickness="3" Background="{x:Null}" BorderBrush="Black" FontWeight="Light" FontSize="18"/>
 
     </Grid>
 

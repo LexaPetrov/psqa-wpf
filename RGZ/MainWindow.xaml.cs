@@ -7,7 +7,7 @@
 -	расчёт метрик Берлингера;
 -	расчёт метрик Чепена;
 */
-using System;
+using System;///[e[e[e[e[s
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -154,6 +154,7 @@ namespace RGZ
                 textBox_settings.Text = "настройки";
                 textBox_description.Visibility = Visibility.Collapsed;
                 btn_apply.Visibility = Visibility.Visible;
+                btn_training.Visibility = Visibility.Collapsed;
                 btn_closeright.Visibility = Visibility.Visible;
                 rect_settings.Visibility = Visibility.Visible;
                 textBox_settings.Visibility = Visibility.Visible;
@@ -169,7 +170,8 @@ namespace RGZ
                 btn_apply.Visibility = Visibility.Visible;
                 btn_closeright.Visibility = Visibility.Visible;
                 rect_settings.Visibility = Visibility.Visible;
-                textBox_settings.Visibility = Visibility.Visible;
+                btn_training.Visibility = Visibility.Visible;
+                textBox_settings.Visibility = Visibility.Collapsed;
                 textBox_settings.Text = "настройки";
                 showMetrics();
 
@@ -186,6 +188,7 @@ namespace RGZ
                 btn_apply.Visibility = Visibility.Visible;
                 btn_closeright.Visibility = Visibility.Visible;
                 rect_settings.Visibility = Visibility.Visible;
+                btn_training.Visibility = Visibility.Visible;
                 textBox_settings.Visibility = Visibility.Visible;
                 if (rect_menu.Width == 250)
                 {
@@ -200,6 +203,7 @@ namespace RGZ
                 btn_closeright.Visibility = Visibility.Visible;
                 rect_settings.Visibility = Visibility.Visible;
                 textBox_settings.Visibility = Visibility.Visible;
+                btn_training.Visibility = Visibility.Visible;
                 textBox_settings.Text = "о программе";
                 hideMetrics();
             }
