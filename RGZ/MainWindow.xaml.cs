@@ -46,7 +46,7 @@ namespace RGZ
             btn_openmenu_Click(this, new RoutedEventArgs());
             label_loading.Visibility = Visibility.Collapsed;
             showMetrics();
-            textBox_path.Text = Settings.Default["fwork"].ToString();
+           // textBox_path.Text = Settings.Default["fwork"].ToString();
         }
 
         private void btn_closemenu_Click(object sender, RoutedEventArgs e)
@@ -85,8 +85,8 @@ namespace RGZ
             cb_MakKlur.Visibility = Visibility.Collapsed;
             cb_Svyaz.Visibility = Visibility.Collapsed;
             label_info.Visibility = Visibility.Collapsed;
-            textBox_path.Visibility = Visibility.Collapsed;
-            btn_framework.Visibility = Visibility.Collapsed;
+           // textBox_path.Visibility = Visibility.Collapsed;
+           // btn_framework.Visibility = Visibility.Collapsed;
         }
 
         public void showMetrics()
@@ -100,8 +100,8 @@ namespace RGZ
             cb_Chepen.Visibility = Visibility.Visible;
             cb_Berlinger.Visibility = Visibility.Visible;
             label_info.Visibility = Visibility.Visible;
-            textBox_path.Visibility = Visibility.Visible;
-            btn_framework.Visibility = Visibility.Visible;
+           // textBox_path.Visibility = Visibility.Visible;
+           // btn_framework.Visibility = Visibility.Visible;
         }
 
         private void btn_openmenu_Click(object sender, RoutedEventArgs e)
@@ -272,35 +272,41 @@ namespace RGZ
 
         private void btn_delete_Click(object sender, RoutedEventArgs e)
         {
-            if (listBox_namelist.Items.Count > 1 && listBox_namelist.SelectedIndex == listBox_namelist.Items.Count - 1)
+            if (listBox_namelist.Items.Count >= 1 )//&& listBox_namelist.SelectedIndex == listBox_namelist.Items.Count - 1)
             {
-                listBox_namelist.SelectedIndex++;
-                listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex - 1);
+               // listBox_namelist.SelectedIndex++;
+               // listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex - 1);
+                listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex);
+                label_codes.Text = "";
             }
 
         }
         private void btn_deleteall_Click(object sender, RoutedEventArgs e)
         {
-
+         
             if (listBox_namelist.Items.Count != 0)
                 for (int i = 0; i < listBox_namelist.Items
                       .Count; i++)
                     listBox_namelist.Items.RemoveAt(i);
+            label_codes.Text = "";
+            listBox_namelist.SelectedIndex = 0;
+            btn_delete_Click(this, new RoutedEventArgs());
+            
         }
 
-        private void btn_framework_Click(object sender, RoutedEventArgs e)
-        {
-            FolderBrowserDialog dlg = new FolderBrowserDialog();
-            DialogResult result = dlg.ShowDialog();
-            dlg.ShowNewFolderButton = false;
-            if (System.Windows.Forms.DialogResult.OK == result)//если папка выбрана
-            {
-                textBox_path.Text = dlg.SelectedPath;
-            }
-            Settings.Default["fwork"] = textBox_path.Text;
-            Settings.Default.Save();
-            textBox_path.Text = Settings.Default["fwork"].ToString();
-        }
+        //private void btn_framework_Click(object sender, RoutedEventArgs e)
+        //{
+        //    FolderBrowserDialog dlg = new FolderBrowserDialog();
+        //    DialogResult result = dlg.ShowDialog();
+        //    dlg.ShowNewFolderButton = false;
+        //    if (System.Windows.Forms.DialogResult.OK == result)//если папка выбрана
+        //    {
+        //        textBox_path.Text = dlg.SelectedPath;
+        //    }
+        //    Settings.Default["fwork"] = textBox_path.Text;
+        //    Settings.Default.Save();
+        //    textBox_path.Text = Settings.Default["fwork"].ToString();
+        //}
         //РАБОТА С ФАЙЛОВОЙ СИСТЕМОЙ.........................................................................................................
         /// <summary>
         /// Доавление файлов 
@@ -364,19 +370,32 @@ namespace RGZ
                 }
             }
         }
-       
+
         private void listBox_namelist_SelectionChanged(object sender, SelectionChangedEventArgs e)//выбор файла
         {
             label_codes.Text = "Код модуля:\n";
-            FileStream fs = new FileStream(cs.Vars.Files[listBox_namelist.SelectedIndex], FileMode.Open);
-            StreamReader sr = new StreamReader(fs);
-            while (!sr.EndOfStream)
+            try
             {
-                label_codes.Text += sr.ReadLine() + "\n";
+                if (listBox_namelist.Items.Count != 0)
+                {
+                    FileStream fs = new FileStream(cs.Vars.Files[listBox_namelist.SelectedIndex], FileMode.Open);
+
+
+                    StreamReader sr = new StreamReader(fs);
+
+                    while (!sr.EndOfStream)
+                    {
+                        label_codes.Text += sr.ReadLine() + "\n";
+                    }
+                    sr.Close();
+                    fs.Close();
+                }
             }
-            sr.Close();
-            fs.Close();
-          
+            catch
+            {
+                label_codes.Text = " ";
+                listBox_namelist.SelectedIndex = -1;
+            }
         }
 
         //ОБРАБОТКА ФАЙЛОВ...................................................................................................................
