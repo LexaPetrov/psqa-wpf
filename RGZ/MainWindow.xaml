@@ -103,7 +103,7 @@
         <Button  x:Name="btn_hideUI" Template="{StaticResource ButtonTemplate}" HorizontalAlignment="Left" Margin="0,485,0,0" VerticalAlignment="Top" Width="50" BorderThickness="0" Height="50" Background="{x:Null}" Click="btn_hideUI_Click" ToolTip="Скрыть элементы управления" >
             <Image Source="Resources/cassette.jpg" Height="32" Width="32"/>
         </Button>
-        <Button x:Name="btn_count" Content="рассчитать" HorizontalAlignment="Left" Margin="2,490,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center" Grid.Column="1"/>
+        <Button x:Name="btn_count" Content="рассчитать" HorizontalAlignment="Left" Margin="2,490,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center" Grid.Column="1" Click="btn_count_Click"/>
         <CheckBox x:Name="cb_Holsted" Content="метрика Холстеда" Grid.Column="2" HorizontalAlignment="Left" Margin="298,79,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_Svyaz" Content="связность модулей" Grid.Column="2" HorizontalAlignment="Left" Margin="298,275,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_Berlinger" Content="метрика Берлингера" Grid.Column="2" HorizontalAlignment="Left" Margin="298,247,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>

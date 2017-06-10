@@ -299,6 +299,7 @@ namespace RGZ
             label_codes.Text = "";
             listBox_namelist.SelectedIndex = 0;
             btn_delete_Click(this, new RoutedEventArgs());
+           
             
 
 
@@ -327,6 +328,14 @@ namespace RGZ
             cb_Svyaz.IsChecked = false;
         }
 
+        private void btn_count_Click(object sender, RoutedEventArgs e)
+        {
+            if (cb_Berlinger.IsChecked == true && listBox_namelist.Items.Count != 0)
+                BerlingerMetrics(cs.Vars.Files);
+            else { System.Windows.MessageBox.Show("Пожалуйста, добавьте файлы и/или выберите метрику"); btn_settings_Click(this, new RoutedEventArgs());};
+        }
+
+
         //private void btn_framework_Click(object sender, RoutedEventArgs e)
         //{
         //    FolderBrowserDialog dlg = new FolderBrowserDialog();
@@ -340,6 +349,7 @@ namespace RGZ
         //    Settings.Default.Save();
         //    textBox_path.Text = Settings.Default["fwork"].ToString();
         //}
+
         //РАБОТА С ФАЙЛОВОЙ СИСТЕМОЙ.........................................................................................................
         /// <summary>
         /// Доавление файлов 
@@ -433,7 +443,7 @@ namespace RGZ
         /// Функция обработки файлов
         /// </summary>
         /// <param name="Files"></param>
-        private void LoadingFiles(List<string> Files)
+        public void LoadingFiles(List<string> Files)
         {
 
             foreach (string x in cs.Vars.Files)//идём по файлам
@@ -463,6 +473,9 @@ namespace RGZ
                 fs.Close();
             }
         }
+
+        
+
         private List<string> ModuleMinimizing(List<string> Text)//обработка от лишних пробелов и пустых строк
         {
             //всё работает
@@ -716,6 +729,43 @@ namespace RGZ
             }
             return Result;
         }
+
+        public void BerlingerMetrics(List<string> Files)
+        {
+            List<int> Berlinger = new List<int>();
+            foreach (string x in cs.Vars.Files)
+            {
+                char[] symbols = new char[]
+                { ' ','!','"','#','$','%','&','\'','(',')','*','+',',','-','.','/',
+                '0','1','2','3','4','5','6','7','8','9',':',';','<','=','>','?',
+                '@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
+                'P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']','^','_',
+                '`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
+                'p','q','r','s','t','u','v','w','x','y','z','{','|','}','~'};
+                List<string> ModuleText = new List<string>();
+                FileStream fs = new FileStream(x, FileMode.Open, FileAccess.Read);
+                StreamReader sr = new StreamReader(fs);
+                while (!sr.EndOfStream)
+                {
+                    Berlinger.Add(sr.ReadLine().Length);//strings
+
+                }
+
+                int i = 1;
+                int berlingerSymbols = 0;
+                foreach (var number in Berlinger)
+                {
+                    //   System.Windows.MessageBox.Show("В " + i + " строчке " + number + " символов");//symbols
+                    berlingerSymbols += number;
+                    i++;
+                }
+                System.Windows.MessageBox.Show(berlingerSymbols.ToString());
+                sr.Close();
+                fs.Close();
+            }
+
+        }
+
         private double[] СalculationHolstedsMetrics(List<string> Text)//возвращает значение метрик Холстеда
         {//теоретические величины дописать, елсы для ускорения кое-где повставлять
             //метрики в массиве: длина программы, объём программы, уровень качества программирования,
@@ -1234,7 +1284,8 @@ namespace RGZ
             return OperatorsQuantity;
         }
 
-      
+        
+
 
 
 
