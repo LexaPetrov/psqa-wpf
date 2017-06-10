@@ -85,8 +85,10 @@ namespace RGZ
             cb_MakKlur.Visibility = Visibility.Collapsed;
             cb_Svyaz.Visibility = Visibility.Collapsed;
             label_info.Visibility = Visibility.Collapsed;
-           // textBox_path.Visibility = Visibility.Collapsed;
-           // btn_framework.Visibility = Visibility.Collapsed;
+            btn_check.Visibility = Visibility.Collapsed;
+            btn_uncheck.Visibility = Visibility.Collapsed;
+            // textBox_path.Visibility = Visibility.Collapsed;
+            // btn_framework.Visibility = Visibility.Collapsed;
         }
 
         public void showMetrics()
@@ -100,8 +102,11 @@ namespace RGZ
             cb_Chepen.Visibility = Visibility.Visible;
             cb_Berlinger.Visibility = Visibility.Visible;
             label_info.Visibility = Visibility.Visible;
-           // textBox_path.Visibility = Visibility.Visible;
-           // btn_framework.Visibility = Visibility.Visible;
+            btn_check.Visibility = Visibility.Visible;
+            btn_uncheck.Visibility = Visibility.Visible;
+
+            // textBox_path.Visibility = Visibility.Visible;
+            // btn_framework.Visibility = Visibility.Visible;
         }
 
         private void btn_openmenu_Click(object sender, RoutedEventArgs e)
@@ -283,15 +288,43 @@ namespace RGZ
         }
         private void btn_deleteall_Click(object sender, RoutedEventArgs e)
         {
-         
+
             if (listBox_namelist.Items.Count != 0)
                 for (int i = 0; i < listBox_namelist.Items
                       .Count; i++)
+                {
                     listBox_namelist.Items.RemoveAt(i);
+                //    cs.Vars.Files.RemoveAll(string path);
+                }
             label_codes.Text = "";
             listBox_namelist.SelectedIndex = 0;
             btn_delete_Click(this, new RoutedEventArgs());
             
+
+
+        }
+        private void btn_check_Click(object sender, RoutedEventArgs e)
+        {
+            cb_Berlinger.IsChecked = true;
+            cb_Chepen.IsChecked = true;
+            cb_Holsted.IsChecked = true;
+            cb_Jilb.IsChecked = true;
+            cb_Kafur.IsChecked = true;
+            cb_MakKeib.IsChecked = true;
+            cb_MakKlur.IsChecked = true;
+            cb_Svyaz.IsChecked = true;
+        }
+
+        private void btn_uncheck_Click(object sender, RoutedEventArgs e)
+        {
+            cb_Berlinger.IsChecked = false;
+            cb_Chepen.IsChecked = false;
+            cb_Holsted.IsChecked = false;
+            cb_Jilb.IsChecked = false;
+            cb_Kafur.IsChecked = false;
+            cb_MakKeib.IsChecked = false;
+            cb_MakKlur.IsChecked = false;
+            cb_Svyaz.IsChecked = false;
         }
 
         //private void btn_framework_Click(object sender, RoutedEventArgs e)
@@ -379,10 +412,7 @@ namespace RGZ
                 if (listBox_namelist.Items.Count != 0)
                 {
                     FileStream fs = new FileStream(cs.Vars.Files[listBox_namelist.SelectedIndex], FileMode.Open);
-
-
                     StreamReader sr = new StreamReader(fs);
-
                     while (!sr.EndOfStream)
                     {
                         label_codes.Text += sr.ReadLine() + "\n";
@@ -1204,7 +1234,8 @@ namespace RGZ
             return OperatorsQuantity;
         }
 
-       
+      
+
 
 
 
