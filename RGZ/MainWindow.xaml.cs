@@ -45,6 +45,9 @@ namespace RGZ
             btn_settings_Click(this, new RoutedEventArgs());
             btn_openmenu_Click(this, new RoutedEventArgs());
             label_loading.Visibility = Visibility.Collapsed;
+            btn_1.Visibility = Visibility.Collapsed;
+            btn_2.Visibility = Visibility.Collapsed;
+            btn_3.Visibility = Visibility.Collapsed;
             showMetrics();
            // textBox_path.Text = Settings.Default["fwork"].ToString();
         }
@@ -68,9 +71,57 @@ namespace RGZ
                 btn_openfolder_opened.Visibility = Visibility.Collapsed;
                 btn_about_opened.Visibility = Visibility.Collapsed;
                 textBox_name.Visibility = Visibility.Collapsed;
+                btn_training_hide.Visibility = Visibility.Collapsed;
                 /*--------------------------------------------------------*/
                 btn_hideUI.IsEnabled = true;
             }
+
+        }
+
+        private void btn_training_Click(object sender, RoutedEventArgs e)
+        {
+
+            btn_training.Visibility = Visibility.Collapsed;
+            btn_training_hide.Visibility = Visibility.Visible;
+            label_loading.Visibility = Visibility.Visible;
+            btn_1_Click(this, new RoutedEventArgs());
+            btn_1.Visibility = Visibility.Visible;
+            btn_2.Visibility = Visibility.Visible;
+            btn_3.Visibility = Visibility.Visible;
+            
+
+        }
+
+        private void btn_1_Click(object sender, RoutedEventArgs e)
+        {
+            var uri = new Uri("pack://application:,,,/Resources/11.png");
+            var img = new BitmapImage(uri);
+            image.Source = img;
+        }
+
+        private void btn_2_Click(object sender, RoutedEventArgs e)
+        {
+            var uri = new Uri("pack://application:,,,/Resources/22.png");
+            var img = new BitmapImage(uri);
+            image.Source = img;
+        }
+
+        private void btn_3_Click(object sender, RoutedEventArgs e)
+        {
+            var uri = new Uri("pack://application:,,,/Resources/33.png");
+            var img = new BitmapImage(uri);
+            image.Source = img;
+        }
+
+        private void btn_training_hide_Click(object sender, RoutedEventArgs e)
+        {
+            image.Source = null;
+            btn_training.Visibility = Visibility.Visible;
+            btn_training_hide.Visibility = Visibility.Collapsed;
+            label_loading.Visibility = Visibility.Collapsed;
+            btn_1.Visibility = Visibility.Collapsed;
+            btn_2.Visibility = Visibility.Collapsed;
+            btn_3.Visibility = Visibility.Collapsed;
 
         }
 
@@ -286,6 +337,8 @@ namespace RGZ
             }
 
         }
+
+
         private void btn_deleteall_Click(object sender, RoutedEventArgs e)
         {
 
@@ -1284,7 +1337,13 @@ namespace RGZ
             return OperatorsQuantity;
         }
 
-        
+       
+
+
+
+
+
+
 
 
 
