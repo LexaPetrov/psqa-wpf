@@ -7,7 +7,15 @@
 -	расчёт метрик Берлингера;
 -	расчёт метрик Чепена;
 */
-using System;///[e[e[e[e[s
+/*
+Баги в Холстеде:
+1) с функциями в операторах дерьмо какое-то пока что, но его только в отладке видать
+2) В операндах много неправильно обрабатывается
+3) Нет функции восстановления имён
+4) Нет функции удаления шапок
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,7 +57,7 @@ namespace RGZ
             btn_2.Visibility = Visibility.Collapsed;
             btn_3.Visibility = Visibility.Collapsed;
             showMetrics();
-           // textBox_path.Text = Settings.Default["fwork"].ToString();
+            // textBox_path.Text = Settings.Default["fwork"].ToString();
         }
 
         private void btn_closemenu_Click(object sender, RoutedEventArgs e)
@@ -88,7 +96,7 @@ namespace RGZ
             btn_1.Visibility = Visibility.Visible;
             btn_2.Visibility = Visibility.Visible;
             btn_3.Visibility = Visibility.Visible;
-            
+
 
         }
 
@@ -179,8 +187,8 @@ namespace RGZ
             textBox_name.Visibility = Visibility.Visible;
             rect_menu.Height = 568;
             /*--------------------------------------------------------*/
-            if(btn_delete.Visibility == Visibility.Visible)
-            btn_hideUI_Click(this, new RoutedEventArgs());
+            if (btn_delete.Visibility == Visibility.Visible)
+                btn_hideUI_Click(this, new RoutedEventArgs());
             btn_hideUI.IsEnabled = false;
         }
 
@@ -294,6 +302,7 @@ namespace RGZ
                 hideMetrics();
             }
         }
+
         private void btn_hideUI_Click(object sender, RoutedEventArgs e)
         {
             if (btn_delete.Visibility == Visibility.Visible && btn_count.Visibility == Visibility.Visible)
@@ -320,7 +329,7 @@ namespace RGZ
             {
                 using (StreamWriter sw = new StreamWriter(sfd.OpenFile(), System.Text.Encoding.Default))
                 {
-                    sw.Write(label_codes.Text);
+                    sw.WriteLine(label_codes.Text + "\n");
                     sw.Close();
                 }
             }
@@ -328,16 +337,20 @@ namespace RGZ
 
         private void btn_delete_Click(object sender, RoutedEventArgs e)
         {
-            if (listBox_namelist.Items.Count >= 1 )//&& listBox_namelist.SelectedIndex == listBox_namelist.Items.Count - 1)
+            if (listBox_namelist.Items.Count >= 1)//&& listBox_namelist.SelectedIndex == listBox_namelist.Items.Count - 1)
             {
-               // listBox_namelist.SelectedIndex++;
-               // listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex - 1);
-                listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex);
-                label_codes.Text = "";
+                // listBox_namelist.SelectedIndex++;
+                // listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex - 1);
+                try
+                {
+                    cs.Vars.Files.RemoveAt(listBox_namelist.SelectedIndex);
+                    listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex);
+                    label_codes.Text = "";
+                }
+                catch { System.Windows.MessageBox.Show("Не выбран файл для удаления");  }
             }
 
         }
-
 
         private void btn_deleteall_Click(object sender, RoutedEventArgs e)
         {
@@ -347,16 +360,18 @@ namespace RGZ
                       .Count; i++)
                 {
                     listBox_namelist.Items.RemoveAt(i);
-                //    cs.Vars.Files.RemoveAll(string path);
+                    //    cs.Vars.Files.RemoveAll(string path);
                 }
             label_codes.Text = "";
             listBox_namelist.SelectedIndex = 0;
             btn_delete_Click(this, new RoutedEventArgs());
-           
-            
+            cs.Vars.Files.Clear();
+
+
 
 
         }
+
         private void btn_check_Click(object sender, RoutedEventArgs e)
         {
             cb_Berlinger.IsChecked = true;
@@ -381,13 +396,11 @@ namespace RGZ
             cb_Svyaz.IsChecked = false;
         }
 
-        private void btn_count_Click(object sender, RoutedEventArgs e)
+        private void btn_count_Click(object sender, RoutedEventArgs e)//Расчитать метрики
         {
-            if (cb_Berlinger.IsChecked == true && listBox_namelist.Items.Count != 0)
-                BerlingerMetrics(cs.Vars.Files);
-            else { System.Windows.MessageBox.Show("Пожалуйста, добавьте файлы и/или выберите метрику"); btn_settings_Click(this, new RoutedEventArgs());};
+            label_codes.Text = "";
+            LoadingFiles(cs.Vars.Files);//загружаем файлы, там считаем метрики
         }
-
 
         //private void btn_framework_Click(object sender, RoutedEventArgs e)
         //{
@@ -426,23 +439,23 @@ namespace RGZ
                         paths.Clear();
                         //Бросить исключение "Недопустимое имя файла"     
                     }
-                 
+
                     cs.Vars.Files.Add(dlg.FileNames[i]);
                     listBox_namelist.Items.Add(cs.Vars.GetFileName(dlg.FileNames[i])); //добавляем вкладки
                     paths.Add(dlg.FileNames[i]);//добавляем модули к листу
                 }
-                
+
                 LoadingFiles(cs.Vars.Files);//загружаем каждый файл
-                                     
+
                 if (rect_settings.Height == 568 && rect_settings.Width == 250 && rect_menu.Width == 250)
                 {
                     btn_closeright_Click(this, new RoutedEventArgs());
                     btn_closemenu_Click(this, new RoutedEventArgs());
                     btn_hideUI_Click(this, new RoutedEventArgs());
-                    
+
                 }
             }
-            
+
         }
         private void btn_openfolder_Click(object sender, RoutedEventArgs e)
         {
@@ -463,6 +476,9 @@ namespace RGZ
                     btn_closeright_Click(this, new RoutedEventArgs());
                     btn_closemenu_Click(this, new RoutedEventArgs());
                     btn_hideUI_Click(this, new RoutedEventArgs());
+                    if (rect_menu.Width == 50 && btn_count.Visibility == Visibility.Collapsed)
+                        btn_hideUI_Click(this, new RoutedEventArgs());
+
                 }
             }
         }
@@ -491,879 +507,44 @@ namespace RGZ
             }
         }
 
-        //ОБРАБОТКА ФАЙЛОВ...................................................................................................................
         /// <summary>
         /// Функция обработки файлов
         /// </summary>
         /// <param name="Files"></param>
-        public void LoadingFiles(List<string> Files)
+        private void LoadingFiles(List<string> Files)
         {
-
-            foreach (string x in cs.Vars.Files)//идём по файлам
+            if ((cb_Berlinger.IsChecked == false && cb_Chepen.IsChecked == false && cb_Holsted.IsChecked == false && cb_Jilb.IsChecked == false && cb_Kafur.IsChecked == false
+                && cb_MakKeib.IsChecked == false && cb_MakKlur.IsChecked == false && cb_Svyaz.IsChecked == false) || cs.Vars.Files.Count == 0)//есди метрики не выбраны
             {
-                List<string> ModuleText = new List<string>();//текст модуля
-                FileStream fs = new FileStream(x, FileMode.Open, FileAccess.Read);//создаём файловый поток
-                StreamReader sr = new StreamReader(fs);//создаём читателя
-                //Здесь будет полная обработка файла, разбиение на лексемы, подсчет метрик и т.д.
-                //посредством вызова методов для каждой из метрик
-                while (!sr.EndOfStream)//читаем файл до конца
+                System.Windows.MessageBox.Show("Пожалуйста, добавьте файлы и/или выберите метрику");
+                btn_settings_Click(this, new RoutedEventArgs());
+                if(rect_settings.Visibility == Visibility.Collapsed)
+                    btn_settings_Click(this, new RoutedEventArgs());
+                if (rect_menu.Width == 50 && btn_count.Visibility == Visibility.Collapsed)
+                    btn_hideUI_Click(this, new RoutedEventArgs());
+            }
+            else
+            {
+                if (rect_menu.Width == 50 && btn_count.Visibility == Visibility.Collapsed)
+                    btn_hideUI_Click(this, new RoutedEventArgs());
+                if (cb_Berlinger.IsChecked == true)//если выбран Берлингер
                 {
-                    ModuleText.Add(sr.ReadLine());
+                    double BerlingersResult = cs.BerlingerMetric.CalculationBerlingerMetric(cs.Vars.Files);//значение метрики Берлингера
+                    label_codes.Text = "\n" + "Мера Берлингера: " + BerlingersResult.ToString() + "\n" + label_codes.Text;
                 }
-                //результаты нужно куда-нибудь вывести или сохранить
-                foreach (string s in ModuleText)
-                    label_codes.Text += s;
-                int CommentQuantity = 0;
-                ModuleText = RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
-                ModuleText = ModuleMinimizing(ModuleText);//обработка модуля от лишних строк и разделителей
-                ModuleText = ModuleProcessing(ModuleText);//обнуление строковых констант
-                ModuleText = OneOperatorOneString(ModuleText);//"один оператор <=> одна строка"
-                ModuleText = OneOperatorOneString(ModuleText);
-                //восстановление имён, удаление шапок 
-                //СalculationHolstedsMetrics(ModuleText);//вычисляем метрики Холстеда
-                //System.Windows.MessageBox.Show(numberString.ToString());
-                sr.Close();
-                fs.Close();
+                if (cb_Holsted.IsChecked == true)//если выбран Холстед
+                {
+                    double[] HolstedsResults = cs.HolstedMetrics.СalculationHolstedsMetrics(cs.Vars.Files);//значение метрик Холстеда
+                    label_codes.Text = "Уровень языка выражения: " + HolstedsResults[5].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Трудоёмкость кодирования: " + HolstedsResults[4].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Cложность понимания программы: " + HolstedsResults[3].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Уровень качества программирования: " + HolstedsResults[2].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Объём программы: " + HolstedsResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Длина программы: " + HolstedsResults[0].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Метрики Холстеда:" + "\n" + label_codes.Text;
+                }
             }
         }
-
-        
-
-        private List<string> ModuleMinimizing(List<string> Text)//обработка от лишних пробелов и пустых строк
-        {
-            //всё работает
-            List<string> result = new List<string>();
-            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
-            for (int i = 0; i < Text.Count; i++)//идём по листу
-            {
-                string Temp = "";
-                for (int j = 0; j < Text[i].Length; j++)//идём по строке
-                {
-                    if (Char.IsSeparator(Text[i][j]))
-                    {
-                        Temp += Text[i][j];
-                        while (j < Text[i].Length && Char.IsSeparator(Text[i][j]))
-                            j++;
-                        j--;
-                    }
-                    else
-                        Temp += Text[i][j];
-                }
-                if (Temp != "" && !(Temp.Length == 1 && Char.IsSeparator(Temp[0])))
-                {
-                    result.Add(Temp);
-                    label_codes.Text += Temp + "\n";//после тестирования нужно удалить
-                }
-            }
-            return result;
-        }
-        private List<string> OneOperatorOneString(List<string> Text)
-        {
-            List<string> result = new List<string>();
-            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
-            string Temp = "";
-            foreach (string str in Text)
-            {
-                foreach (char x in str)
-                {
-                    if (x != '{')
-                        Temp += x;
-                    if (x == ';' || x == '{' || x == '}')
-                    {
-                        result.Add(Temp);
-                        label_codes.Text += Temp + "\n";//после тестирования нужно удалить
-                        Temp = "";
-                        if (x == '{')//чтобы фигурную скобку отделить
-                        {
-                            Temp += x;
-                            result.Add(Temp);
-                            label_codes.Text += Temp + "\n";//после тестирования нужно удалить
-                            Temp = "";
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-        private List<string> ModuleProcessing(List<string> Text)
-        {
-            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
-            List<String> result = new List<string>();
-            string Temp = "";
-            bool IsCarretIntoConstString = false, IsCarretIntoConstChar = false;
-            for (int i = 0; i < Text.Count; i++)//идем по модулю
-            {
-                Temp = "";
-                for (int j = 0; j < Text[i].Length; j++)
-                {
-                    if (!IsCarretIntoConstString && !IsCarretIntoConstChar)
-                    {
-                        if (Text[i][j] == '"' && (j == 0 || Text[i][j - 1] != '\\'))
-                        {
-                            Temp += Text[i][j];
-                            j++;
-                            IsCarretIntoConstString = true;
-                            while (j < Text[i].Length && !(Text[i][j] == '"' && Text[i][j - 1] != '\\'))
-                            {
-                                j++;
-                            }
-                            if (j < Text[i].Length && j > 0 && Text[i][j] == '"' && Text[i][j - 1] != '\\')
-                            {
-                                Temp += Text[i][j];
-                                IsCarretIntoConstString = false;
-                                j++;
-                            }
-                        }
-                        if (j < Text[i].Length && Text[i][j] == '\'')
-                        {
-                            Temp += Text[i][j];
-                            j++;
-                            IsCarretIntoConstChar = true;
-                            while (j < Text[i].Length && !(Text[i][j] == '\'' && Text[i][j - 1] != '\\'))
-                            {
-                                j++;
-                            }
-                            if (j < Text[i].Length && Text[i][j] == '\'' && Text[i][j - 1] != '\\')
-                            {
-                                Temp += Text[i][j];
-                                IsCarretIntoConstChar = false;
-                                j++;
-                            }
-                        }
-                    }
-                    if (IsCarretIntoConstString)
-                    {
-                        while (j < Text[i].Length && !(Text[i][j] == '"' && Text[i][j - 1] != '\\'))
-                        {
-                            j++;
-                        }
-                        if (j < Text[i].Length && j > 0 && Text[i][j] == '"' && Text[i][j - 1] != '\\')
-                        {
-                            Temp += Text[i][j];
-                            IsCarretIntoConstString = false;
-                            j++;
-                        }
-                    }
-                    if (IsCarretIntoConstChar)
-                    {
-                        while (j < Text[i].Length && !(Text[i][j] == '\'' && Text[i][j - 1] != '\\'))
-                        {
-                            j++;
-                        }
-                        if (j < Text[i].Length && Text[i][j] == '\'' && Text[i][j - 1] != '\\')
-                        {
-                            Temp += Text[i][j];
-                            IsCarretIntoConstChar = false;
-                            j++;
-                        }
-                    }
-                    if (j < Text[i].Length)
-                        Temp += Text[i][j];
-
-                }
-                result.Add(Temp);
-                label_codes.Text += Temp + "\n";//после тестирования нужно удалить
-            }
-            return result;
-        }
-
-        private List<string> RemoveComments(List<string> Text, ref int CommentsQuantity)//считает и удаляет комментарии
-        {
-            //Считается, сколько строк содержит комментарий
-            List<string> Result = new List<string>();
-            int IsMultyStringComment = 0;
-            string Temp = "";
-            label_codes.Text = "Код модуля:\n";//после тестирования нужно удалить
-            for (int i = 0; i < Text.Count; i++)//идём по листу
-            {
-                bool EndOfString = false;
-                int IndexOfContinuous = 0;
-                Temp = "";
-                if (IsMultyStringComment > 0)//если многострочный коммент
-                {
-                    CommentsQuantity++;
-                    for (int j = 0; j < Text[i].Length; j++)
-                        if ((j != Text[i].Length - 1) && Text[i][j] == '*' && Text[i][j + 1] == '/')
-                        {
-                            if (j == Text[i].Length - 2)
-                                EndOfString = true;
-                            else IndexOfContinuous = j + 2;
-                            IsMultyStringComment--;
-                            break;
-                        }
-                }
-                if (EndOfString) continue;
-                if (IsMultyStringComment == 0) // тут не надо менять на елс, а то кусок строки может быть не проверен 
-                    for (int j = IndexOfContinuous; j < Text[i].Length; j++)
-                    {
-                        //если однострочный или многострочный коммент
-                        if (Text[i][j] == '/' && (j != Text[i].Length - 1))
-                            if (Text[i][j + 1] == '/')
-                            {
-                                CommentsQuantity++;
-                                break;
-                            }
-                            else if (Text[i][j + 1] == '*')
-                            {
-                                IsMultyStringComment++;
-                                CommentsQuantity++;
-                                while ((j < Text[i].Length - 1 && !(Text[i][j] != '*' && Text[i][j + 1] != '/')) || j == Text[i].Length - 1)
-                                    j++;
-                                if (j < Text[i].Length - 1 && Text[i][j] == '*' && Text[i][j + 1] == '/')
-                                {
-                                    j += 2;
-                                    IsMultyStringComment--;
-                                }
-                            }
-                        if ((j != Text[i].Length - 1) && Text[i][j] == '*' && Text[i][j + 1] == '/')
-                        {
-                            if (j == Text[i].Length - 2)
-                            {
-                                EndOfString = true;
-                                break;
-                            }
-                            else j += 2;
-                            IsMultyStringComment--;
-                        }
-                        if (IsMultyStringComment == 0 && j < Text[i].Length)
-                            Temp += Text[i][j];
-                    }
-                Result.Add(Temp);
-                label_codes.Text += Temp + "\n";//после тестирования нужно удалить
-            }
-            return Result;
-        }
-
-        private List<string> RestorationOfNameFromNickname(List<string> Text)//восстановление псевдонимов
-        {
-            List<string> Result = new List<string>();
-            int i = 0;
-            string Key = "", Value = "";
-            string Temp = "";
-            Dictionary<string, string> NicknameOldnameDictionary = new Dictionary<string, string>();//ключ псевдоним, значение стандартное имя
-            while (!Text[i].Contains("class"))//после этого слова юзинги нельзя писать
-            {
-                if (Text[i].Contains("using") && Text[i].IndexOf('=') != -1)
-                {
-                    int j = Text[i].IndexOf('g') + 2;
-                    while (!Char.IsSeparator(Text[i][j]))
-                    {
-                        Key += Text[i][j];
-                        j++;
-                    }
-                    j = Text[i].IndexOf('=') + 2;
-                    while (!Char.IsSeparator(Text[i][j]))
-                    {
-                        Value += Text[i][j];
-                        j++;
-                    }
-                    NicknameOldnameDictionary.Add(Key, Value);//составлен словарь псевдонимов
-                }
-                Result.Add(Text[i]);
-                i++;
-            }
-            for (int j = i; j < Text.Count; j++)
-            {
-                Temp = Text[i];
-                foreach (string x in NicknameOldnameDictionary.Keys)
-                {
-                    for (int k = 0; k < x.Length; k++)
-                    {
-                        int index = Temp.IndexOf(x);
-                        if (index != -1)
-                        {
-                            if ((i == 0 || (Temp[index - 1] == '.' || Char.IsSeparator(Temp[index - 1]))) && (Temp[index + x.Length + 1] == '.' || Char.IsSeparator(Temp[index + x.Length + 1])))
-                            {
-                                //допишу сегодня-завтра
-                            }
-                        }
-                    }
-                }
-            }
-            return Result;
-        }
-
-        public void BerlingerMetrics(List<string> Files)
-        {
-            List<int> Berlinger = new List<int>();
-            foreach (string x in cs.Vars.Files)
-            {
-                char[] symbols = new char[]
-                { ' ','!','"','#','$','%','&','\'','(',')','*','+',',','-','.','/',
-                '0','1','2','3','4','5','6','7','8','9',':',';','<','=','>','?',
-                '@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
-                'P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']','^','_',
-                '`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
-                'p','q','r','s','t','u','v','w','x','y','z','{','|','}','~'};
-                List<string> ModuleText = new List<string>();
-                FileStream fs = new FileStream(x, FileMode.Open, FileAccess.Read);
-                StreamReader sr = new StreamReader(fs);
-                while (!sr.EndOfStream)
-                {
-                    Berlinger.Add(sr.ReadLine().Length);//strings
-
-                }
-
-                int i = 1;
-                int berlingerSymbols = 0;
-                foreach (var number in Berlinger)
-                {
-                    //   System.Windows.MessageBox.Show("В " + i + " строчке " + number + " символов");//symbols
-                    berlingerSymbols += number;
-                    i++;
-                }
-                System.Windows.MessageBox.Show(berlingerSymbols.ToString());
-                sr.Close();
-                fs.Close();
-            }
-
-        }
-
-        private double[] СalculationHolstedsMetrics(List<string> Text)//возвращает значение метрик Холстеда
-        {//теоретические величины дописать, елсы для ускорения кое-где повставлять
-            //метрики в массиве: длина программы, объём программы, уровень качества программирования,
-            //сложность понимания программы, трудоёмкость кодирования, уровень языка выражения
-            bool[] operators = new bool[78];//массив "встречен ли оператор"
-            List<string> Function = new List<string>(), TemplateClasses = new List<string>();//заполнить шаблонами
-
-            double[] results = new double[6];//результаты
-            double n1 = 0, n2 = 0, N1 = 0, N2 = 0; //мощность словаря операторов, операндов, суммарное количество операторов, операндов
-            N1 = FindAllOperators(Text, ref operators, ref Function, TemplateClasses);
-            //теперь всё надо посчитать
-            return null;
-        }
-        /// <summary>
-        /// Поиск всех операторов
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <param name="operators"></param>
-        /// <param name="Functions"></param>
-        /// <param name="TemplateClasses"></param>
-        /// <returns></returns>
-        private int FindAllOperators(List<string> Text, ref bool[] operators, ref List<string> Functions, List<string> TemplateClasses)//поиск всех операторов
-        {
-            /*Операторы в следующем порядке: +(унарный), +(бинарный), -(унарный), -(бинарный), *, /, %, ++, --, ==, !=(10), >, <,
-            >=, <=, is, &&, ||, !, >>, <<(20), &, |, ^, ~, +=, -=, *=, /=, =, %=(30), ^=, &=, |=, >>=, <<=, continue, break, return,
-            goto, if(...)(40), for(...), while(...), foreach(...), switch(...), catch(...), throw, try, finally, (type), as(50), ., 
-            [...], ->, ?., ?[, case, new, stacalloc, typeof, sizeof(60), nameof, {...}, ?:, yield, *(работа с указателями)
-            fixed, lock, checked, unchecked, await, ::, =>, ??, true, false, using()*/
-
-            int OperatorsQuantity = 0;//количество операторов
-            foreach (string x in Text)
-            {
-                for (int i = 0; i < x.Length; i++)
-                {
-                    //если if(...), for(...), while(...), foreach(...), switch(...) // внутри операторов не считают
-                    if ((i == 0 || (i > 0 && !Char.IsDigit(x[i - 1]) && !Char.IsLetter(x[i - 1]) && x[i - 1] != '_')))
-                    {
-                        if ((i < x.Length - 4) && x[i] == 'i' && x[i + 1] == 'f' && (Char.IsSeparator(x[i + 2]) || x[i + 2] == '('))//встречено если
-                        {
-                            operators[40] = true;
-                            while (i < x.Length && x[i] != ')')
-                                i++;
-                            i++;// пропускаем закрывающую скобку
-                            OperatorsQuantity++;
-                        }
-                        else if ((i < x.Length - 5) && x[i] == 'f' && x[i + 1] == 'o' && x[i + 2] == 'r' && (Char.IsSeparator(x[i + 3]) || x[i + 3] == '('))//встречен фор
-                        {
-                            operators[41] = true;
-                            while (i < x.Length && x[i] != ')')
-                                i++;
-                            i++;// пропускаем закрывающую скобку
-                            OperatorsQuantity++;
-                        }
-                        else if ((i < x.Length - 7) && x[i] == 'w' && x[i + 1] == 'h' && x[i + 2] == 'i' && x[i + 3] == 'l' && x[i + 4] == 'e' && (Char.IsSeparator(x[i + 5]) || x[i + 5] == '('))//встречен вайл
-                        {
-                            operators[42] = true;
-                            while (i < x.Length && x[i] != ')')
-                                i++;
-                            i++;// пропускаем закрывающую скобку
-                            OperatorsQuantity++;
-                        }
-                        else if ((i < x.Length - 8) && x[i] == 's' && x[i + 1] == 'w' && x[i + 2] == 'i' && x[i + 3] == 't' && x[i + 4] == 'c' && x[i + 5] == 'h' && (Char.IsSeparator(x[i + 6]) || x[i + 6] == '('))//встречен свич
-                        {
-                            operators[44] = true;
-                            while (i < x.Length && x[i] != ')')
-                                i++;
-                            i++;// пропускаем закрывающую скобку
-                            OperatorsQuantity++;
-                        }
-                        else if ((i < x.Length - 9) && x[i] == 'f' && x[i + 1] == 'o' && x[i + 2] == 'r' && x[i + 3] == 'e' && x[i + 4] == 'a' && x[i + 5] == 'c' && x[i + 6] == 'h' && (Char.IsSeparator(x[i + 7]) || x[i + 7] == '('))//встречен форич
-                        {
-                            operators[43] = true;
-                            while (i < x.Length && x[i] != ')')//
-                                i++;
-                            i++;// пропускаем закрывающую скобку
-                            OperatorsQuantity++;
-                        }
-                    }
-                    //если '(' от оператора приведения типов или функции
-                    if (i > 1 && x[i] == '(' && ((Char.IsSeparator(x[i - 1]) && (Char.IsLetterOrDigit(x[i - 2]) || x[i - 2] == '_')) || Char.IsLetter(x[i - 1]) || x[i - 1] == '_') || (i > 0 && x[i] == '(' && ((Char.IsLetterOrDigit(x[i - 1]) || x[i - 1] == '_'))))
-                    {
-                        bool IsCoertionOperator = false;
-                        int h = i;
-                        while (x[h] != ')' && h < x.Length)
-                        {
-                            if (x[h] == ')' && h < x.Length - 2 && ((Char.IsSeparator(x[h + 1]) && (Char.IsLetter(x[h + 2]) || x[h + 2] == '_')) || Char.IsLetter(x[h + 1]) || x[h + 1] == '_'))
-                            {
-                                IsCoertionOperator = true;
-                                operators[49] = true;
-                                i = h;
-                                OperatorsQuantity++;
-                            }
-                            h++;
-                        }
-                        if (!IsCoertionOperator)//если функция
-                        {
-                            int j = i - 1;
-                            string InvertedNameOfFunction = "", NameOfFunction = "";
-                            while (j >= 0 && (Char.IsLetter(x[j]) || Char.IsDigit(x[j]) || x[j] == '_' || x[j] == '.'))
-                            {
-                                InvertedNameOfFunction += x[j];
-                                j--;
-                            }
-                            for (int k = InvertedNameOfFunction.Length - 1; k >= 0; k--)
-                                NameOfFunction += InvertedNameOfFunction[k];
-                            OperatorsQuantity++;
-                            if (NameOfFunction == "nameof")
-                                operators[61] = true;
-                            else if (NameOfFunction == "sizeof")
-                                operators[60] = true;
-                            else if (NameOfFunction == "typeof")
-                                operators[59] = true;
-                            else
-                            {
-                                bool IsFunctionWasMet = false;
-                                foreach (string q in Functions)
-                                    if (q == NameOfFunction)
-                                        IsFunctionWasMet = true;
-                                if (!IsFunctionWasMet)
-                                    Functions.Add(NameOfFunction);
-                            }
-                        }
-                    }
-                    else if (Char.IsLetter(x[i]) || x[i] == '_')//отрулил шаблоны
-                    {
-                        int h = i;
-                        string Name = "";
-                        while (h < x.Length && (Char.IsLetter(x[h]) || x[h] == '_'))
-                        {
-                            Name += x[h];
-                            h++;
-                        }
-                        i = h;
-                        if (TemplateClasses.Contains(Name))
-                        {
-                            while (x[h] != '>') h++;
-                            i = h;
-                        }
-                        else if (Name == "using")
-                        {
-                            operators[77] = true;
-                            OperatorsQuantity++;
-                        }
-                        //словесные операторы
-                        else if (Name == "continue")
-                        {
-                            operators[36] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "break")
-                        {
-                            operators[37] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "return")
-                        {
-                            operators[38] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "goto")
-                        {
-                            operators[40] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "is")
-                        {
-                            operators[15] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "as")
-                        {
-                            operators[50] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "new")
-                        {
-                            operators[57] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "stackalloc")
-                        {
-                            operators[58] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "yield")
-                        {
-                            operators[64] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "fixed")
-                        {
-                            operators[66] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "lock")
-                        {
-                            operators[67] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "checked")
-                        {
-                            operators[68] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "unchecked")
-                        {
-                            operators[69] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "await")
-                        {
-                            operators[70] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "true")
-                        {
-                            operators[74] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "false")
-                        {
-                            operators[75] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "throw")
-                        {
-                            operators[46] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "try")
-                        {
-                            operators[47] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "catch")
-                        {
-                            operators[45] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "finally")
-                        {
-                            operators[48] = true;
-                            OperatorsQuantity++;
-                        }
-                        else if (Name == "case")
-                        {
-                            operators[56] = true;
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '+')
-                    {
-                        if (x[i - 1] == '+' || x[i + 1] == '=') continue;//если конец ++ или это +=
-                        else if (x[i + 1] == '+')
-                        {
-                            operators[7] = true;//использован инкремент
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '(' || x[i - 1] == '=' || (x[i - 1] == ' ' && x[i - 2] == '('))//если унарный минус
-                        {
-                            operators[0] = true;//использован унарный плюс
-                            OperatorsQuantity++;
-                        }
-                        else
-                        {
-                            operators[1] = true;//использован бинарный плюс
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '-')
-                    {
-                        if (x[i - 1] == '-' || x[i + 1] == '=') continue;//если конец -- или это -=
-                        else if (x[i + 1] == '-')
-                        {
-                            operators[8] = true;//использован инкремент
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '(' || x[i - 1] == '=' || (x[i - 1] == ' ' && x[i - 2] == '('))//если унарный минус
-                        {
-                            operators[2] = true;//использован унарный минус
-                            OperatorsQuantity++;
-                        }
-                        else
-                        {
-                            operators[3] = true;//использован бинарный минус
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '*' && ((x[i - 1] == ' ' && (Char.IsDigit(x[i - 2]) || Char.IsLetter(x[i - 2]) || x[i - 2] == '_' || x[i - 2] == ')')) || (Char.IsDigit(x[i - 1]) || Char.IsLetter(x[i - 1]) || x[i - 1] == '_' || x[i - 1] == ' ' || x[i - 1] == ')')))
-                    //если умножение, а не разыменование
-                    {
-                        operators[4] = true;//использовано умножение
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '*' && ((x[i - 1] == ' ' && (!Char.IsDigit(x[i - 2]) && !Char.IsLetter(x[i - 2]) && x[i - 2] != '_' && x[i - 2] != ')')) || (!Char.IsDigit(x[i - 1]) && !Char.IsLetter(x[i - 1]) && x[i - 1] != '_' && x[i - 1] != ' ' && x[i - 1] != ')')))
-                    //если разыменование
-                    {
-                        operators[65] = true;//использовано разыменование
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '/')
-                    //если деление
-                    {
-                        operators[5] = true;//использовано деление
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '%')
-                    {
-                        operators[6] = true;//использован остаток от деления
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '=')
-                    {
-                        if (x[i - 1] == '=')
-                        {
-                            operators[9] = true;//использовано ==
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '!')
-                        {
-                            operators[10] = true;//использовано !=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '>')
-                        {
-                            operators[13] = true;//использовано >=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '<')
-                        {
-                            operators[14] = true;//использовано <=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '+')
-                        {
-                            operators[25] = true;//использовано +=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '-')
-                        {
-                            operators[26] = true;//использовано -=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '*')
-                        {
-                            operators[27] = true;//использовано *=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '/')
-                        {
-                            operators[28] = true;//использовано /=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '%')
-                        {
-                            operators[30] = true;//использовано %=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '<' && x[i - 2] == '<')
-                        {
-                            operators[35] = true;//использовано <<=
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i - 1] == '>' && x[i - 2] == '>')
-                        {
-                            operators[34] = true;//использовано >>=
-                            OperatorsQuantity++;
-                        }
-                        else
-                        {
-                            operators[29] = true;//использовано =
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '>' && x[i + 1] != '=' && x[i - 1] != '-' && x[i + 1] != '>' && x[i - 1] != '>' && x[i - 1] != '=')//если знак больше
-                    {
-                        operators[11] = true;//использовано >
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '<' && x[i + 1] != '=' && x[i + 1] != '<' && x[i - 1] != '<' && x[i - 1] != '=')//если знак меньше
-                    {
-                        operators[12] = true;//использовано <
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '<' && x[i + 2] != '=' && x[i + 1] == '<')//если <<
-                    {
-                        operators[20] = true;//использовано <<
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '>' && x[i + 2] != '=' && x[i + 1] == '>')//если >>
-                    {
-                        operators[19] = true;//использовано >>
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '>' && x[i - 1] == '-')//если ->
-                    {
-                        operators[53] = true;//использовано ->
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '>' && x[i - 1] == '=')//если =>
-                    {
-                        operators[72] = true;//использовано =>
-                        OperatorsQuantity++;
-                    }
-                    //if (i < 4 || (i == 4 && !(x[i - 4] == 'L' && x[i - 3] == 'i' && x[i - 2] == 's' && x[i - 1] == 't')) || (i > 4 && !(x[i - 5] == 'L' && x[i - 4] == 'i' && x[i - 3] == 's' && x[i - 2] == 't' && x[i - 1] == ' ')))
-                    else if (x[i] == '&')//если оперсанд
-                    {
-                        if (i > 0 && x[i - 1] == '&') continue;//если конец лог И
-                        else if (i < x.Length && x[i + 1] == '=')
-                        {
-                            operators[32] = true;//использовано &=
-                            OperatorsQuantity++;
-                        }
-                        else if (i < x.Length && x[i + 1] == '&')
-                        {
-                            operators[16] = true;//использовано &&
-                            OperatorsQuantity++;
-                        }
-                        else
-                        {
-                            operators[21] = true;//использовано &
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '|')//если |
-                    {
-                        if (i > 0 && x[i - 1] == '|') continue;//если конец лог ИЛИ
-                        else if (i < x.Length && x[i + 1] == '=')
-                        {
-                            operators[33] = true;//использовано |=
-                            OperatorsQuantity++;
-                        }
-                        else if (i < x.Length && x[i + 1] == '|')
-                        {
-                            operators[17] = true;//использовано ||
-                            OperatorsQuantity++;
-                        }
-                        else
-                        {
-                            operators[22] = true;//использовано |
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '^')//если xor
-                    {
-                        if (i < x.Length && x[i + 1] == '=')
-                        {
-                            operators[31] = true;//использовано ^=
-                            OperatorsQuantity++;
-                        }
-                        else
-                        {
-                            operators[23] = true;//использовано ^
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '!' && x[i + 1] != '=')
-                    {
-                        operators[18] = true;//использован !
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '~')
-                    {
-                        operators[24] = true;//использован ~
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == '.')
-                    {
-                        operators[51] = true;//использован .
-                        OperatorsQuantity++;
-                        if (x[i - 1] == '?')
-                        {
-                            operators[54] = true;//использован ?.
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '?')
-                    {
-                        if (x[i + 1] == '[')
-                        {
-                            operators[55] = true;//использован ?[
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i + 1] == '?')
-                        {
-                            operators[73] = true;//использован ??
-                            OperatorsQuantity++;
-                        }
-                        else if (x[i + 1] != '.')
-                        {
-                            operators[63] = true;//использовано ?:
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '[')
-                    {
-                        operators[52] = true;//использован []
-                        OperatorsQuantity++;
-                    }
-                    else if (x[i] == ':')
-                    {
-                        if (x[i + 1] == ':') continue;
-                        else
-                        {
-                            operators[63] = true;//использовано ::
-                            OperatorsQuantity++;
-                        }
-                    }
-                    else if (x[i] == '{')
-                    {
-                        operators[62] = true;//использованы {}
-                        OperatorsQuantity++;
-                    }
-                }
-            }
-            return OperatorsQuantity;
-        }
-
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //private int FindAllOperands()
-        //{
-
-        //      return OperandsQuantity;
-        //}
     }
 }
 

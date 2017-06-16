@@ -67,6 +67,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="cs\BerlingerMetric.cs" />
+    <Compile Include="cs\HolstedMetrics.cs" />
+    <Compile Include="cs\TransforamationFunctions.cs" />
     <Compile Include="cs\Vars.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
