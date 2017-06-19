@@ -284,6 +284,8 @@ namespace RGZ
                 textBox_settings.Visibility = Visibility.Collapsed;
                 btn_apply.Visibility = Visibility.Collapsed;
                 btn_closeright.Visibility = Visibility.Collapsed;
+                btn_training_hide.Visibility = Visibility.Collapsed;
+                btn_training.Visibility = Visibility.Collapsed;
                 hideMetrics();
             }
 
@@ -299,6 +301,8 @@ namespace RGZ
                 textBox_settings.Visibility = Visibility.Collapsed;
                 btn_apply.Visibility = Visibility.Collapsed;
                 btn_closeright.Visibility = Visibility.Collapsed;
+                btn_training_hide.Visibility = Visibility.Collapsed;
+                btn_training.Visibility = Visibility.Collapsed;
                 hideMetrics();
             }
         }
