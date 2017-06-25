@@ -15,8 +15,7 @@ namespace RGZ.cs
             //метрики в массиве: длина программы, объём программы, уровень качества программирования,
             //сложность понимания программы, трудоёмкость кодирования, уровень языка выражения
 
-            List<string> ModuleTextForOperators = new List<string>();//текст модуля для подсчёта операторов
-            List<string> ModuleTextForOperands = new List<string>();//текст модуля для подсчёта операндов
+            List<string> ModuleText = new List<string>();//текст модуля для подсчёта операторов
             bool[] operators = new bool[78];//массив "встречен ли оператор"
             List<string> Function = new List<string>();//массив вызванных функций
             List<string> operands = new List<string>();//массив операндов
@@ -27,27 +26,21 @@ namespace RGZ.cs
             {
                 FileStream fs = new FileStream(x, FileMode.Open, FileAccess.Read);//создаём файловый поток
                 StreamReader sr = new StreamReader(fs);//создаём читателя
-
+                ModuleText = new List<string>();
                 while (!sr.EndOfStream)//читаем файл до конца
                 {
-                    ModuleTextForOperators.Add(sr.ReadLine());
-                    ModuleTextForOperands.Add(ModuleTextForOperators[ModuleTextForOperators.Count - 1]);
+                    ModuleText.Add(sr.ReadLine());
                 }
 
                 int CommentQuantity = 0;
-                ModuleTextForOperators = cs.TransforamationFunctions.RemoveComments(ModuleTextForOperators, ref CommentQuantity);//обработка модуля от комментариев
-                ModuleTextForOperators = cs.TransforamationFunctions.ModuleMinimizing(ModuleTextForOperators);//обработка модуля от лишних строк и разделителей
-                ModuleTextForOperators = cs.TransforamationFunctions.ModuleProcessing(ModuleTextForOperators);//обнуление строковых констант
-                ModuleTextForOperators = cs.TransforamationFunctions.OneOperatorOneString(ModuleTextForOperators);//"один оператор <=> одна строка"
-                ModuleTextForOperators = cs.TransforamationFunctions.RestorationOfNameFromNickname(ModuleTextForOperators);//восстановление псевдонимов
+                ModuleText = cs.TransforamationFunctions.RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
+                ModuleText = cs.TransforamationFunctions.ModuleMinimizing(ModuleText);//обработка модуля от лишних строк и разделителей
+                ModuleText = cs.TransforamationFunctions.ModuleProcessing(ModuleText);//обнуление строковых констант
+                ModuleText = cs.TransforamationFunctions.OneOperatorOneString(ModuleText);//"один оператор <=> одна строка"
+                ModuleText = cs.TransforamationFunctions.RestorationOfNameFromNickname(ModuleText);//восстановление псевдонимов
 
-                ModuleTextForOperands = cs.TransforamationFunctions.RemoveComments(ModuleTextForOperands, ref CommentQuantity);//обработка модуля от комментариев
-                ModuleTextForOperands = cs.TransforamationFunctions.ModuleMinimizing(ModuleTextForOperands);//обработка модуля от лишних строк и разделителей
-                ModuleTextForOperands = cs.TransforamationFunctions.OneOperatorOneString(ModuleTextForOperands);//"один оператор <=> одна строка"
-                ModuleTextForOperands = cs.TransforamationFunctions.RestorationOfNameFromNickname(ModuleTextForOperands);//восстановление псевдонимов
-
-                N1 += FindAllOperators(ModuleTextForOperators, ref operators, ref Function) + Function.Count;
-                N2 += FindAllOperands(ModuleTextForOperands, ref operands);
+                N1 += FindAllOperators(ModuleText, ref operators, ref Function) + Function.Count;
+                N2 += FindAllOperands(ModuleText, ref operands);
 
                 sr.Close();
                 fs.Close();
@@ -171,7 +164,7 @@ namespace RGZ.cs
                         }
                     }
                     //если '(' от оператора приведения типов или функции (т.е. перед ней идентификатор, а не операция)
-                    if (i > 1 && x[i] == '(' && ((Char.IsSeparator(x[i - 1]) && (Char.IsLetterOrDigit(x[i - 2]) || x[i - 2] == '_')) || Char.IsLetter(x[i - 1]) || x[i - 1] == '_') || (i > 0 && x[i] == '(' && ((Char.IsLetterOrDigit(x[i - 1]) || x[i - 1] == '_'))))
+                    if (i<x.Length && (i > 1 && x[i] == '(' && ((Char.IsSeparator(x[i - 1]) && (Char.IsLetterOrDigit(x[i - 2]) || x[i - 2] == '_')) || Char.IsLetter(x[i - 1]) || x[i - 1] == '_') || (i > 0 && x[i] == '(' && ((Char.IsLetterOrDigit(x[i - 1]) || x[i - 1] == '_')))))
                     {
                         bool IsCoertionOperator = false;//флаг "оператор приведения типов ли?"
                         int h = i;
@@ -217,7 +210,7 @@ namespace RGZ.cs
                             }
                         }
                     }
-                    else if (Char.IsLetterOrDigit(x[i]) || x[i] == '_')//отрулил шаблоны и ключевые слова
+                    else if (i<x.Length && (Char.IsLetterOrDigit(x[i]) || x[i] == '_'))//отрулил шаблоны и ключевые слова
                     {
                         int h = i;
                         string Name = "";
@@ -239,13 +232,14 @@ namespace RGZ.cs
                                     IsTemplate = false;
                                 f++;
                             }
-
+                            if (f == x.Length)//если так и не встретили >
+                                IsTemplate = false;
                         }
                         else
                             IsTemplate = false;
                         if (IsTemplate)//если это шаблон
                         {
-                            while (x[h] != '>') h++;
+                            while ( x[h] != '>') h++;
                             i = h;
                         }
                         //ключевые слова
@@ -360,10 +354,10 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '+')
+                    else if (i<x.Length && x[i] == '+')
                     {
                         if (x[i - 1] == '+' || x[i + 1] == '=') continue;//если конец ++ или это +=
-                        else if (x[i + 1] == '+')
+                        else if (i+1 < x.Length && x[i + 1] == '+')
                         {
                             operators[7] = true;//использован инкремент
                             OperatorsQuantity++;
@@ -379,10 +373,10 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '-')
+                    else if (i < x.Length && x[i] == '-')
                     {
                         if (x[i - 1] == '-' || x[i + 1] == '=' || x[i + 1] == '>') continue;//если конец -- или это -=
-                        else if (x[i + 1] == '-')
+                        else if (i+1 < x.Length && x[i + 1] == '-')
                         {
                             operators[8] = true;//использован декремент
                             OperatorsQuantity++;
@@ -398,30 +392,30 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '*' && ((Char.IsSeparator(x[i - 1]) && (Char.IsLetterOrDigit(x[i - 2]) || x[i - 2] == '_' || x[i - 2] == ')')) || (Char.IsLetterOrDigit(x[i - 1]) || x[i - 1] == '_' || x[i - 1] == ')')))
+                    else if (i < x.Length && x[i] == '*' && ((Char.IsSeparator(x[i - 1]) && (Char.IsLetterOrDigit(x[i - 2]) || x[i - 2] == '_' || x[i - 2] == ')')) || (Char.IsLetterOrDigit(x[i - 1]) || x[i - 1] == '_' || x[i - 1] == ')')))
                     //если умножение, а не разыменование
                     {
                         operators[4] = true;//использовано умножение
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '*' && x[i + 1] != '=')
+                    else if (i < x.Length && x[i] == '*' && x[i + 1] != '=')
                     //если разыменование
                     {
                         operators[65] = true;//использовано разыменование
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '/' && x[i + 1] != '=')
+                    else if (i < x.Length && x[i] == '/' && x[i + 1] != '=')
                     //если деление
                     {
                         operators[5] = true;//использовано деление
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '%' && x[i + 1] != '=')
+                    else if (i < x.Length && x[i] == '%' && x[i + 1] != '=')
                     {
                         operators[6] = true;//использован остаток от деления
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '=')
+                    else if (i < x.Length && x[i] == '=')
                     {
                         if (x[i - 1] == '=')
                         {
@@ -433,12 +427,12 @@ namespace RGZ.cs
                             operators[10] = true;//использовано !=
                             OperatorsQuantity++;
                         }
-                        else if (x[i - 1] == '>')
+                        else if (x[i - 1] == '>' && x[i - 2] != '>')
                         {
                             operators[13] = true;//использовано >=
                             OperatorsQuantity++;
                         }
-                        else if (x[i - 1] == '<')
+                        else if (x[i - 1] == '<' && x[i - 2] != '<')
                         {
                             operators[14] = true;//использовано <=
                             OperatorsQuantity++;
@@ -493,46 +487,46 @@ namespace RGZ.cs
                             operators[31] = true;//использовано ^=
                             OperatorsQuantity++;
                         }
-                        else if (x[i + 1] != '>' && x[i + 1] != '=')
+                        else if (i+1 < x.Length && x[i + 1] != '>' && x[i + 1] != '=')
                         {
                             operators[29] = true;//использовано =
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '>' && x[i + 1] != '=' && x[i - 1] != '-' && x[i + 1] != '>' && x[i - 1] != '>' && x[i - 1] != '=')//если знак больше
+                    else if (i < x.Length && x[i] == '>' && x[i + 1] != '=' && x[i - 1] != '-' && x[i + 1] != '>' && x[i - 1] != '>' && x[i - 1] != '=')//если знак больше
                     {
                         operators[11] = true;//использовано >
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '<' && x[i + 1] != '=' && x[i + 1] != '<' && x[i - 1] != '<')//если знак меньше
+                    else if (i < x.Length && x[i] == '<' && x[i + 1] != '=' && x[i + 1] != '<' && x[i - 1] != '<')//если знак меньше
                     {
                         operators[12] = true;//использовано <
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '<' && x[i + 2] != '=' && x[i + 1] == '<')//если <<
+                    else if (i < x.Length && x[i] == '<' && x[i + 2] != '=' && x[i + 1] == '<')//если <<
                     {
                         operators[20] = true;//использовано <<
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '>' && x[i + 2] != '=' && x[i + 1] == '>')//если >>
+                    else if (i < x.Length && x[i] == '>' && x[i + 2] != '=' && x[i + 1] == '>')//если >>
                     {
                         operators[19] = true;//использовано >>
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '>' && x[i - 1] == '-')//если ->
+                    else if (i < x.Length && x[i] == '>' && x[i - 1] == '-')//если ->
                     {
                         operators[53] = true;//использовано ->
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '>' && x[i - 1] == '=')//если =>
+                    else if (i < x.Length && x[i] == '>' && x[i - 1] == '=')//если =>
                     {
                         operators[72] = true;//использовано =>
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '&')//если оперсанд
+                    else if (i < x.Length && x[i] == '&')//если оперсанд
                     {
                         if (i > 0 && (x[i - 1] == '&' || x[i + 1] == '=')) continue;//если конец лог И или &=
-                        else if (i < x.Length && x[i + 1] == '&')
+                        else if (i+1 < x.Length && x[i + 1] == '&')
                         {
                             operators[16] = true;//использовано &&
                             OperatorsQuantity++;
@@ -543,10 +537,10 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '|')//если |
+                    else if (i < x.Length && x[i] == '|')//если |
                     {
                         if (i > 0 && (x[i - 1] == '|' || x[i + 1] == '=')) continue;//если конец лог ИЛИ или |=
-                        else if (i < x.Length && x[i + 1] == '|')
+                        else if (i+1 < x.Length && x[i + 1] == '|')
                         {
                             operators[17] = true;//использовано ||
                             OperatorsQuantity++;
@@ -557,7 +551,7 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '^')//если xor
+                    else if (i < x.Length && x[i] == '^')//если xor
                     {
                         if (i > 0 && x[i + 1] == '=') continue;//если ^=
                         else
@@ -566,17 +560,17 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '!' && x[i + 1] != '=')
+                    else if (i < x.Length && x[i] == '!' && x[i + 1] != '=')
                     {
                         operators[18] = true;//использован !
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '~')
+                    else if (i < x.Length && x[i] == '~')
                     {
                         operators[24] = true;//использован ~
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == '.')
+                    else if (i < x.Length && x[i] == '.')
                     {
                         operators[51] = true;//использован .
                         OperatorsQuantity++;
@@ -586,7 +580,7 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '?')
+                    else if (i < x.Length && x[i] == '?')
                     {
                         if (x[i + 1] == '[')
                         {
@@ -604,12 +598,12 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '[' && (Char.IsLetterOrDigit(x[i + 1]) || Char.IsLetterOrDigit(x[i + 2]) || x[i + 2] == '_' || x[i + 1] == '_'))
+                    else if (i < x.Length && x[i] == '[' && (Char.IsLetterOrDigit(x[i + 1]) || Char.IsLetterOrDigit(x[i + 2]) || x[i + 2] == '_' || x[i + 1] == '_'))
                     {
                         operators[52] = true;//использован []
                         OperatorsQuantity++;
                     }
-                    else if (x[i] == ':')
+                    else if (i < x.Length && x[i] == ':')
                     {
                         if (x[i + 1] == ':') continue;
                         else if (x[i - 1] == ':')
@@ -618,7 +612,7 @@ namespace RGZ.cs
                             OperatorsQuantity++;
                         }
                     }
-                    else if (x[i] == '{')
+                    else if (i < x.Length && x[i] == '{')
                     {
                         operators[62] = true;//использованы {}
                         OperatorsQuantity++;
@@ -630,11 +624,4111 @@ namespace RGZ.cs
 
         public static int FindAllOperands(List<string> Text, ref List<string> operands)
         {
-            int OperandsQuantity = 0;
-            string InvertedCurrentOperandName = "", CurrentOperandName = "", PreviousOperandName = "";
+            int OperandsQuantity = 0, i=0;
+            int ind;
+            string InvertedCurrentOperandName = "", CurrentOperandName = "";
+            List<int> used;
             foreach (string x in Text)
             {
-                for (int i = 0; i < x.Length; i++)
+                used = new List<int>();
+                i = 0;
+                while (x.IndexOf("++", i)!=-1)//если есть инкремент
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("++", i) + 2;
+                    while (Char.IsSeparator(x[ind]))
+                        ind++;
+                    if (Char.IsLetter(x[ind]) || x[ind]=='_')
+                    {//префиксный
+                        used.Add(ind);//добавление операнда как встреченного
+                        OperandsQuantity++;
+                        while (x[ind]=='_' || Char.IsLetterOrDigit(x[ind]))
+                        {//пока символы операнда
+                            CurrentOperandName += x[ind];
+                            ind++;
+                        }
+                        if (!operands.Contains(CurrentOperandName))
+                            operands.Add(CurrentOperandName);
+                    }
+                    else
+                    {//постфиксный
+                        ind = x.IndexOf("++", i) - 1;
+                        OperandsQuantity++;
+                        if (Char.IsSeparator(x[ind]))
+                            ind--;
+                        while(ind>=0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        used.Add(ind+1);//добавление операнда как встреченного
+                        for (int j = InvertedCurrentOperandName.Length-1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!operands.Contains(CurrentOperandName))
+                            operands.Add(CurrentOperandName);
+                    }
+                    i = x.IndexOf("++", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("--", i) != -1)//если есть декремент
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("--", i) + 2;
+                    while (Char.IsSeparator(x[ind]))
+                        ind++;
+                    if (Char.IsLetter(x[ind]) || x[ind] == '_')
+                    {//префиксный
+                        used.Add(ind);//добавление операнда как встреченного
+                        OperandsQuantity++;
+                        while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                        {//пока символы операнда
+                            CurrentOperandName += x[ind];
+                            ind++;
+                        }
+                        if (!operands.Contains(CurrentOperandName))
+                            operands.Add(CurrentOperandName);
+                    }
+                    else
+                    {//постфиксный
+                        ind = x.IndexOf("--", i) - 1;
+                        OperandsQuantity++;
+                        if (Char.IsSeparator(x[ind]))
+                            ind--;
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        used.Add(ind + 1);//добавление операнда как встреченного
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!operands.Contains(CurrentOperandName))
+                            operands.Add(CurrentOperandName);
+                    }
+                    i = x.IndexOf("--", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("+=", i) != -1)//если есть плюс-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("+=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind]=='(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while(ind<x.Length && BracketCounter!=0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind]=='"')//если строковая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind]=='"' && (x[ind-1]!='\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("+=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind>=0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName!="" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("+=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("-=", i) != -1)//если есть минус-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("-=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("-=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("-=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("*=", i) != -1)//если есть умножить-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("*=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("*=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("*=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("/=", i) != -1)//если есть делить-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("/=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("/=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("/=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("%=", i) != -1)//если есть процент-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("%=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("%=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("%=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("&=", i) != -1)//если встречено и-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("&=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("&=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("&=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("|=", i) != -1)//если есть или-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("|=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("|=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("|=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("^=", i) != -1)//если есть ксор-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("^=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("^=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("^=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("<<=", i) != -1)//если есть сдвиг влево-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<<=", i) + 3;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<<=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("<<=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf(">>=", i) != -1)//если есть сдвиг вправо-равно 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">>=", i) + 3;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">>=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf(">>=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("&&", i) != -1)//если есть логическое И 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("&&", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    if (x[ind] == ')')
+                                        BracketCounter--;
+                                    if (x[ind] == '(')
+                                        BracketCounter++;
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("&&", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("&&", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("||", i) != -1)//если есть логическое ИЛИ 
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("||", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("||", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("||", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf(">=", i) != -1)//если есть больше-равно
+                {
+                    if ((x.IndexOf(">=", i)-1) == '>')//если сдвиг-равно
+                    {
+                        i = x.IndexOf(">=", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf(">=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("<=", i) != -1)//если есть меньше-равно
+                {
+                    if ((x.IndexOf("<=", i) - 1) == '<')//если сдвиг-равно
+                    {
+                        i = x.IndexOf("<=", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("<=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("!=", i) != -1)//если есть не равно
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("!=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '"')//если строковая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"")|| CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("!=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '"')//если строковая константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("!=", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("==", i) != -1)//если есть равно
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("==", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '"')//если строковая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("==", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '"')//если строковая константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("==", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("[", i) != -1)//если есть индексация
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("[", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '"')//если строковая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    i = x.IndexOf("[", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("<<", i) != -1)//если есть сдвиг влево
+                {
+                    if ((x.IndexOf("<<", i) + 2) == '=')//если сдвиг-равно
+                    {
+                        i = x.IndexOf("<<", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<<", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<<", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("<<", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf(">>", i) != -1)//если есть сдвиг влево
+                {
+                    if ((x.IndexOf(">>", i) + 2) == '=')//если сдвиг-равно
+                    {
+                        i = x.IndexOf(">>", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">>", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">>", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf(">>", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("~", i) != -1 && x.IndexOf("~", i) > 2 && ((x[x.IndexOf("~", i)-1] == '(') || (x[x.IndexOf("~", i) - 2] == '(') || (x[x.IndexOf("~", i) - 1] == '=') || (x[x.IndexOf("~", i) - 2] == '=')))//если есть побитовая инверсия, а не начало финализатора
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("~", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    i = x.IndexOf("~", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("!", i) != -1 && x[x.IndexOf("!", i)+1] != '=')//если есть отрицание
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("!", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    i = x.IndexOf("!", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("&", i) != -1)//если есть побитовое И
+                {
+                    if (x.IndexOf("&", i) + 1 == '=' || x.IndexOf("&", i) + 1 == '&' || x.IndexOf("&", i) - 1 == '&')//если И-равно или &&
+                    {
+                        i = x.IndexOf("&", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("&", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("&", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("&", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("|", i) != -1)//если есть побитовое ИЛИ
+                {
+                    if (x.IndexOf("|", i) + 1 == '=' || x.IndexOf("|", i) + 1 == '|' || x.IndexOf("|", i) - 1 == '|')//если ИЛИ-равно или ||
+                    {
+                        i = x.IndexOf("|", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("|", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("|", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("|", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("^", i) != -1)//если есть побитовый ксор
+                {
+                    if (x.IndexOf("^", i) + 1 == '=')//если ксор-равно
+                    {
+                        i = x.IndexOf("^", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("^", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("^", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("^", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("%", i) != -1)//если есть остаток от деления
+                {
+                    if (x.IndexOf("%", i) + 1 == '=')//если процент-равно
+                    {
+                        i = x.IndexOf("%", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("%", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("%", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("%", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("/", i) != -1)//если есть деление
+                {
+                    if (x.IndexOf("/", i) + 1 == '=')//если делить-равно
+                    {
+                        i = x.IndexOf("/", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("/", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("/", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("/", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("*", i) != -1)//если есть умножение
+                {
+                    if (x.IndexOf("*", i) + 1 == '=' || x.IndexOf("*", i) - 1 == '(' || (x.IndexOf("*", i)>1 && x.IndexOf("*", i) - 2 == '('))//если умножить-равно или разыменование
+                    {
+                        i = x.IndexOf("*", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("*", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("*", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("*", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("-", i) != -1)//если есть минус
+                {
+                    if (x.IndexOf("-", i) + 1 == '=' || x.IndexOf("-", i) - 1 == '-' || x.IndexOf("-", i) + 1 == '-')//если минус-равно или декремент
+                    {
+                        i = x.IndexOf("-", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("-", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("-", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("-", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("+", i) != -1)//если есть плюс
+                {
+                    if (x.IndexOf("+", i) + 1 == '=' || x.IndexOf("+", i) - 1 == '+' || x.IndexOf("+", i) + 1 == '+')//если плюс-равно или инкремент
+                    {
+                        i = x.IndexOf("+", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("+", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '"')//если строковая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\'") || CurrentOperandName.Contains("\"")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("+", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '"')//если строковая константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\'") || CurrentOperandName.Contains("\"")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("+", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf(">", i) != -1)//если есть больше
+                {
+                    if ((x.IndexOf(">", i) - 1) == '>' || (x.IndexOf(">", i) - 1) == '=' || (x.IndexOf(">", i) - 1) == '-' || (x.IndexOf(">", i) + 1) == '>' || (x.IndexOf(">", i) + 1) == '=')//если сдвиг-равно или >=, =>,->
+                    {
+                        i = x.IndexOf(">", i) + 1;
+                        continue;
+                    }
+                    bool IsTemplate = true;
+                    int f = x.IndexOf(">", i);
+                    int FranchBracketCounter = 1;
+                    f--;
+                    while (f >=0 && FranchBracketCounter != 0)
+                    {
+                        if (x[f] == '<')
+                            FranchBracketCounter--;
+                        if (x[f] == '>')
+                            FranchBracketCounter++;
+                        if (x[f] == '&' || x[f] == '|' || x[f] == '=' || x[f] == '!' || x[f] == '^')//если не шаблон
+                        {
+                            IsTemplate = false;
+                            break;
+                        }
+                        f--;
+                    }
+                    if (IsTemplate)//если это шаблон
+                    {
+                        i = x.IndexOf(">", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf(">", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf(">", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("<", i) != -1)//если есть меньше
+                {
+                    if ((x.IndexOf("<", i) - 1) == '<' || (x.IndexOf("<", i) + 1) == '<' || (x.IndexOf("<", i) + 1) == '=')//если сдвиг-равно или >=
+                    {
+                        i = x.IndexOf("<", i) + 1;
+                        continue;
+                    }
+                    bool IsTemplate = true;
+                    int f = x.IndexOf("<", i);
+                    int FranchBracketCounter = 1;
+                    f++;
+                    while (f < x.Length && FranchBracketCounter != 0)
+                    {
+                        if (x[f] == '<')
+                            FranchBracketCounter++;
+                        if (x[f] == '>')
+                            FranchBracketCounter--;
+                        if (x[f] == '&' || x[f] == '|' || x[f] == '=' || x[f] == '!' || x[f] == '^')//если не шаблон
+                        {
+                            IsTemplate = false;
+                            break;
+                        }
+                        f++;
+                    }
+                    if (IsTemplate)//если это шаблон
+                    {
+                        i = x.IndexOf("<", i) + 1;
+                        continue;
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("<", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\'"))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("<", i) + 1;
+                }
+                i = 0;
+                while (x.IndexOf("=", i) != -1)//если есть присвоение
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("=", i) + 1;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (CurrentOperandName == "new")//операнд -- новый объект
+                            {
+                                while (Char.IsSeparator(x[ind]))
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                                while (ind < x.Length && x[ind] != ';')
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                            else
+                            {
+                                if (Char.IsSeparator(x[ind]))
+                                    ind++;
+                                if (x[ind] == '(')//функция
+                                {
+                                    int BracketCounter = 1;
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                    while (ind < x.Length && BracketCounter != 0)
+                                    {
+                                        CurrentOperandName += x[ind];
+                                        ind++;
+                                    }
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '"')//если строковая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && (CurrentOperandName.Contains("\"") || CurrentOperandName.Contains("\'")))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("=", i) + 1;
+                }
+                /*while (x.IndexOf("+=", i) != -1)//шаблон, есть всё
+                {
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("+=", i) + 2;
+                    while (Char.IsSeparator(x[ind]))//идём к правому операнду
+                        ind++;
+                    if (!used.Contains(ind))//если операнд ещё не посчитан
+                    {
+                        if (Char.IsLetter(x[ind]) || x[ind] == '_')//если это идентификатор или функция
+                        {//правый операнд
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            if (Char.IsSeparator(x[ind]))
+                                ind++;
+                            if (x[ind] == '(')//функция
+                            {
+                                int BracketCounter = 1;
+                                CurrentOperandName += x[ind];
+                                ind++;
+                                while (ind < x.Length && BracketCounter != 0)
+                                {
+                                    CurrentOperandName += x[ind];
+                                    ind++;
+                                }
+                            }
+                        }
+                        else if (Char.IsDigit(x[ind]))//если числовая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            while (Char.IsDigit(x[ind]))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                        }
+                        else if (x[ind] == '"')//если строковая константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        else if (x[ind] == '\'')//если символьная константа
+                        {
+                            used.Add(ind);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                            CurrentOperandName += x[ind];//первая кавычка
+                            ind++;
+                            while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                            {//пока символы операнда
+                                CurrentOperandName += x[ind];
+                                ind++;
+                            }
+                            CurrentOperandName += x[ind];//вторая кавычка
+                            ind++;
+                        }
+                        if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\""))))
+                            operands.Add(CurrentOperandName);
+                    }
+                    CurrentOperandName = "";
+                    InvertedCurrentOperandName = "";
+                    ind = x.IndexOf("+=", i) - 1;
+                    if (Char.IsSeparator(x[ind]))
+                        ind--;
+                    if (Char.IsLetterOrDigit(x[ind]) || x[ind] == '_')//если это идентификатор или числовая константа
+                    {//левый операнд
+                        while (ind >= 0 && (x[ind] == '_' || Char.IsLetterOrDigit(x[ind])))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == ')')//если функция или скобка приоритета
+                    {
+                        int BracketCounter = 1;
+                        InvertedCurrentOperandName += x[ind];//добавляем скобку
+                        ind--;
+                        while (ind >= 0 && BracketCounter != 0)//читаем всё, что в скобках
+                        {
+                            if (x[ind] == '(')
+                                BracketCounter--;
+                            if (x[ind] == ')')
+                                BracketCounter++;
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        if ((ind > 0 && (x[ind - 1] == '_' || Char.IsLetterOrDigit(x[ind - 1]))) || (ind > 0 && (x[ind - 2] == '_' || Char.IsLetterOrDigit(x[ind - 2]))))
+                        {//скобка функции
+                            if (Char.IsSeparator(x[ind]))
+                                ind--;
+                            while (x[ind] == '_' || Char.IsLetterOrDigit(x[ind]) || x[ind] == '.')//читаем имя функции
+                            {
+                                InvertedCurrentOperandName += x[ind];
+                                ind--;
+                            }
+                            for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                                CurrentOperandName += InvertedCurrentOperandName[j];
+                            if (!used.Contains(ind + 1))//операнд встречен впервые
+                            {
+                                used.Add(ind + 1);//добавление операнда как встреченного
+                                OperandsQuantity++;
+                            }
+                            else
+                                CurrentOperandName = "";
+                        }
+                    }
+                    else if (x[ind] == '"')//если строковая константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '"' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    else if (x[ind] == '\'')//если символьная константа
+                    {
+                        InvertedCurrentOperandName += x[ind];//первая кавычка
+                        ind--;
+                        while (!(x[ind] == '\'' && (x[ind - 1] != '\\' || (x[ind - 1] == '\\' && x[ind - 2] == '\\'))))
+                        {//пока символы операнда
+                            InvertedCurrentOperandName += x[ind];
+                            ind--;
+                        }
+                        InvertedCurrentOperandName += x[ind];//вторая кавычка
+                        ind--;
+                        for (int j = InvertedCurrentOperandName.Length - 1; j >= 0; j--)
+                            CurrentOperandName += InvertedCurrentOperandName[j];
+                        if (!used.Contains(ind + 1))//операнд встречен впервые
+                        {
+                            used.Add(ind + 1);//добавление операнда как встреченного
+                            OperandsQuantity++;
+                        }
+                        else
+                            CurrentOperandName = "";
+                    }
+                    if (CurrentOperandName != "" && (!operands.Contains(CurrentOperandName) || (operands.Contains(CurrentOperandName) && CurrentOperandName.Contains("\""))))
+                        operands.Add(CurrentOperandName);
+                    i = x.IndexOf("+=", i) + 1;
+                }*/
+            }
+            return OperandsQuantity;
+        }
+    }
+}
+
+/*
+ for (int i = 0; i < x.Length; i++)
                 {
                     if (x[i] == '+')
                     {
@@ -2672,8 +6766,4 @@ namespace RGZ.cs
                         InvertedCurrentOperandName = "";
                     }
                 }
-            }
-            return OperandsQuantity;
-        }
-    }
-}
+     */

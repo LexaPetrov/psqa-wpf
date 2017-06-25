@@ -1,21 +1,4 @@
-﻿/*
--	расчёт метрик Холстеда;
--	расчёт метрик Джилба;
--	расчёт метрик Мак-Кейба;
--	расчёт метрик Мак-Клура;
--	расчёт метрик Кафура;
--	расчёт метрик Берлингера;
--	расчёт метрик Чепена;
-*/
-/*
-Баги в Холстеде:
-1) с функциями в операторах дерьмо какое-то пока что, но его только в отладке видать
-2) В операндах много неправильно обрабатывается
-3) Нет функции восстановления имён
-4) Нет функции удаления шапок
- */
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -136,13 +119,11 @@ namespace RGZ
         public void hideMetrics()
         {
             cb_Berlinger.Visibility = Visibility.Collapsed;
-            cb_Chepen.Visibility = Visibility.Collapsed;
+            cb_Comments.Visibility = Visibility.Collapsed;
             cb_Holsted.Visibility = Visibility.Collapsed;
             cb_Jilb.Visibility = Visibility.Collapsed;
-            cb_Kafur.Visibility = Visibility.Collapsed;
+            cb_SLOC.Visibility = Visibility.Collapsed;
             cb_MakKeib.Visibility = Visibility.Collapsed;
-            cb_MakKlur.Visibility = Visibility.Collapsed;
-            cb_Svyaz.Visibility = Visibility.Collapsed;
             label_info.Visibility = Visibility.Collapsed;
             btn_check.Visibility = Visibility.Collapsed;
             btn_uncheck.Visibility = Visibility.Collapsed;
@@ -152,13 +133,11 @@ namespace RGZ
 
         public void showMetrics()
         {
-            cb_Svyaz.Visibility = Visibility.Visible;
-            cb_MakKlur.Visibility = Visibility.Visible;
+            cb_SLOC.Visibility = Visibility.Visible;
+            cb_Comments.Visibility = Visibility.Visible;
             cb_MakKeib.Visibility = Visibility.Visible;
-            cb_Kafur.Visibility = Visibility.Visible;
             cb_Jilb.Visibility = Visibility.Visible;
             cb_Holsted.Visibility = Visibility.Visible;
-            cb_Chepen.Visibility = Visibility.Visible;
             cb_Berlinger.Visibility = Visibility.Visible;
             label_info.Visibility = Visibility.Visible;
             btn_check.Visibility = Visibility.Visible;
@@ -333,7 +312,7 @@ namespace RGZ
             {
                 using (StreamWriter sw = new StreamWriter(sfd.OpenFile(), System.Text.Encoding.Default))
                 {
-                    sw.WriteLine(label_codes.Text + "\n");
+                    sw.Write(label_codes.Text + "\n");
                     sw.Close();
                 }
             }
@@ -351,7 +330,7 @@ namespace RGZ
                     listBox_namelist.Items.RemoveAt(listBox_namelist.SelectedIndex);
                     label_codes.Text = "";
                 }
-                catch { System.Windows.MessageBox.Show("Не выбран файл для удаления");  }
+                catch { System.Windows.MessageBox.Show("Не выбран файл для удаления"); }
             }
 
         }
@@ -370,34 +349,26 @@ namespace RGZ
             listBox_namelist.SelectedIndex = 0;
             btn_delete_Click(this, new RoutedEventArgs());
             cs.Vars.Files.Clear();
-
-
-
-
         }
 
         private void btn_check_Click(object sender, RoutedEventArgs e)
         {
             cb_Berlinger.IsChecked = true;
-            cb_Chepen.IsChecked = true;
             cb_Holsted.IsChecked = true;
             cb_Jilb.IsChecked = true;
-            cb_Kafur.IsChecked = true;
             cb_MakKeib.IsChecked = true;
-            cb_MakKlur.IsChecked = true;
-            cb_Svyaz.IsChecked = true;
+            cb_SLOC.IsChecked = true;
+            cb_Comments.IsChecked = true;
         }
 
         private void btn_uncheck_Click(object sender, RoutedEventArgs e)
         {
             cb_Berlinger.IsChecked = false;
-            cb_Chepen.IsChecked = false;
             cb_Holsted.IsChecked = false;
             cb_Jilb.IsChecked = false;
-            cb_Kafur.IsChecked = false;
             cb_MakKeib.IsChecked = false;
-            cb_MakKlur.IsChecked = false;
-            cb_Svyaz.IsChecked = false;
+            cb_SLOC.IsChecked = false;
+            cb_Comments.IsChecked = false;
         }
 
         private void btn_count_Click(object sender, RoutedEventArgs e)//Расчитать метрики
@@ -449,7 +420,7 @@ namespace RGZ
                     paths.Add(dlg.FileNames[i]);//добавляем модули к листу
                 }
 
-                LoadingFiles(cs.Vars.Files);//загружаем каждый файл
+                //LoadingFiles(cs.Vars.Files);//загружаем каждый файл
 
                 if (rect_settings.Height == 568 && rect_settings.Width == 250 && rect_menu.Width == 250)
                 {
@@ -517,12 +488,12 @@ namespace RGZ
         /// <param name="Files"></param>
         private void LoadingFiles(List<string> Files)
         {
-            if ((cb_Berlinger.IsChecked == false && cb_Chepen.IsChecked == false && cb_Holsted.IsChecked == false && cb_Jilb.IsChecked == false && cb_Kafur.IsChecked == false
-                && cb_MakKeib.IsChecked == false && cb_MakKlur.IsChecked == false && cb_Svyaz.IsChecked == false) || cs.Vars.Files.Count == 0)//есди метрики не выбраны
+            if ((cb_Berlinger.IsChecked == false && cb_Holsted.IsChecked == false && cb_Jilb.IsChecked == false && cb_Comments.IsChecked == false
+                && cb_MakKeib.IsChecked == false && cb_SLOC.IsChecked == false) || cs.Vars.Files.Count == 0)//если метрики не выбраны
             {
                 System.Windows.MessageBox.Show("Пожалуйста, добавьте файлы и/или выберите метрику");
                 btn_settings_Click(this, new RoutedEventArgs());
-                if(rect_settings.Visibility == Visibility.Collapsed)
+                if (rect_settings.Visibility == Visibility.Collapsed)
                     btn_settings_Click(this, new RoutedEventArgs());
                 if (rect_menu.Width == 50 && btn_count.Visibility == Visibility.Collapsed)
                     btn_hideUI_Click(this, new RoutedEventArgs());
@@ -545,7 +516,35 @@ namespace RGZ
                     label_codes.Text = "Уровень качества программирования: " + HolstedsResults[2].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Объём программы: " + HolstedsResults[1].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Длина программы: " + HolstedsResults[0].ToString() + "\n" + label_codes.Text;
-                    label_codes.Text = "Метрики Холстеда:" + "\n" + label_codes.Text;
+                    label_codes.Text = "\n" + "Метрики Холстеда:" + "\n" + label_codes.Text;
+                }
+                if (cb_Jilb.IsChecked == true)
+                {
+                    double[] JilbResults = cs.JilbMetrics.CalculationJilbMetrics(cs.Vars.Files);//значение метрик Холстеда
+                    label_codes.Text = "Средняя глубина вложенности: " + JilbResults[3].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Максимальная глубина вложенности: " + JilbResults[2].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Количество операторов цикла: " + JilbResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Количество условных операторов: " + JilbResults[0].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "\n" + "Метрики Джилба:" + "\n" + label_codes.Text;
+                }
+                if (cb_MakKeib.IsChecked == true)//если выбран Мак-Кейб
+                {
+                    double McCabeResult = cs.McCabeMetric.CalculationMcCabeMetric(cs.Vars.Files);//значение метрики Мак-Кейба
+                    label_codes.Text = "\n" + "Цикломатическое число Мак-Кейба: " + McCabeResult.ToString() + "\n" + label_codes.Text;
+                }
+                if (cb_SLOC.IsChecked == true)//если выбран SLOC
+                {
+                    double[] SLOCResults = cs.SLOC.CalculationSLOCMetric(cs.Vars.Files);//значение метрик SLOC
+                    label_codes.Text = "Количество логических строк: " + SLOCResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Количество физических строк: " + SLOCResults[0].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "\n" + "SLOC (метрики оценки величины программы):" + "\n" + label_codes.Text;
+                }
+                if (cb_Comments.IsChecked == true)//если выбраны метрики комментариев
+                {
+                    double[] CommentResults = cs.Comments.CalculationCommentsMetric(cs.Vars.Files);//значение метрик Холстеда
+                    label_codes.Text = "Относительное количество комментариев: " + CommentResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Абсолютное количество комментариев: " + CommentResults[0].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "\n" + "Метрики оценки комментирования программы:" + "\n" + label_codes.Text;
                 }
             }
         }
