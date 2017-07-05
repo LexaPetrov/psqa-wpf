@@ -15,6 +15,7 @@ namespace RGZ.cs
         public static string AppPath = AppDomain.CurrentDomain.BaseDirectory;
         //Список полных имён файлов
         public static List<string> Files = new List<string>();
+        public static List<string> ShortNameFiles = new List<string>();
         //Получаем имя файла: парсим по / чтобы получить красивое имя, а не имя полного пути
         public static string GetFileName(string file)
         {

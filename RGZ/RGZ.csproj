@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RGZ</RootNamespace>
-    <AssemblyName>RGZ</AssemblyName>
+    <AssemblyName>PSQA</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -68,8 +68,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="cs\BerlingerMetric.cs" />
+    <Compile Include="cs\Comments.cs" />
     <Compile Include="cs\HolstedMetrics.cs" />
-    <Compile Include="cs\TransforamationFunctions.cs" />
+    <Compile Include="cs\JilbMetrics.cs" />
+    <Compile Include="cs\McCabeMetric.cs" />
+    <Compile Include="cs\SLOC.cs" />
+    <Compile Include="cs\TransformationFunctions.cs" />
     <Compile Include="cs\Vars.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

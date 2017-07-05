@@ -27,8 +27,8 @@ namespace RGZ.cs
                     ModuleText.Add(sr.ReadLine());
                 }
                 int CommentQuantity = 0;
-                ModuleText = cs.TransforamationFunctions.RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
-                ModuleText = cs.TransforamationFunctions.ModuleMinimizing(ModuleText);//обработка модуля от лишних строк и разделителей
+                ModuleText = cs.TransformationFunctions.RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
+                ModuleText = cs.TransformationFunctions.ModuleMinimizing(ModuleText);//обработка модуля от лишних строк и разделителей
 
                 foreach (string str in ModuleText)//идём по строкам
                     foreach (Char Ch in str)//идём по столбцам

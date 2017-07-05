@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RGZ.cs
 {
-    class TransforamationFunctions
+    class TransformationFunctions
     {
         public static List<string> ModuleMinimizing(List<string> Text)//обработка от лишних пробелов и пустых строк
         {
