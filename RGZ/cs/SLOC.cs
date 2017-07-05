@@ -27,9 +27,15 @@ namespace RGZ.cs
                 }
                 PhysicalLine += ModuleText.Count;
                 int CommentQuantity = 0;
+<<<<<<< HEAD
                 ModuleText = cs.TransformationFunctions.RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
                 ModuleText = cs.TransformationFunctions.ModuleMinimizing(ModuleText);//обработка модуля от лишних строк и разделителей
                 ModuleText = cs.TransformationFunctions.ModuleProcessing(ModuleText);//обнуление строковых констант
+=======
+                ModuleText = cs.TransforamationFunctions.RemoveComments(ModuleText, ref CommentQuantity);//обработка модуля от комментариев
+                ModuleText = cs.TransforamationFunctions.ModuleMinimizing(ModuleText);//обработка модуля от лишних строк и разделителей
+                ModuleText = cs.TransforamationFunctions.ModuleProcessing(ModuleText);//обнуление строковых констант
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
                 //поиск условий и циклов
                 LogicalLine += FindAllSemicolons(ModuleText);
                 sr.Close();

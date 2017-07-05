@@ -413,13 +413,21 @@ namespace RGZ.cs
                 else if (Text[j].Contains("}"))//если встречена фигурная скобка
                 {
                     Result.Add("}");
+<<<<<<< HEAD
                     while (ConstructionStacks.Count>0 && ConstructionStacks.Peek().Count != 0)//выгружаем весь стэк
+=======
+                    while (ConstructionStacks.Peek().Count != 0)//выгружаем весь стэк
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
                     {
                         Result.Add("}");
                         ConstructionStacks.Peek().Pop();
                     }
+<<<<<<< HEAD
                     if (ConstructionStacks.Count > 0)
                         ConstructionStacks.Pop();//и удаляем
+=======
+                    ConstructionStacks.Pop();//и удаляем
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
                 }
                 else//если простая инструкция 
                 {

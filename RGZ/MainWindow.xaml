@@ -110,7 +110,11 @@
         <CheckBox x:Name="cb_SLOC" Content="метрика SLOC " Grid.Column="2" HorizontalAlignment="Left" Margin="298,170,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_Jilb" Content="метрика Джилба" Grid.Column="2" HorizontalAlignment="Left" Margin="298,140,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
         <CheckBox x:Name="cb_MakKeib" Content="метрика Мак-Кейба" Grid.Column="2" HorizontalAlignment="Left" Margin="298,110,0,0" VerticalAlignment="Top" Width="250" FontSize="18"/>
+<<<<<<< HEAD
         <Button x:Name="btn_deleteall" Content="удалить всё" Grid.Column="1" HorizontalAlignment="Left" Margin="2,560,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center" Click="btn_deleteall_Click"/>
+=======
+        <Button x:Name="btn_deleteall" Content="удалить всё" Grid.Column="1" HorizontalAlignment="Left" Margin="2,550,0,0" VerticalAlignment="Top" Width="198" Height="30" FontWeight="Light" FontSize="18" VerticalContentAlignment="Center" Background="{x:Null}" BorderThickness="3" BorderBrush="Black" HorizontalContentAlignment="Center" Click="btn_deleteall_Click"/>
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
         <Label x:Name="label_loading" Content="Данные загружаются, подождите..." Margin="0,30,0,0" VerticalAlignment="Top" Width="798" Grid.ColumnSpan="3" Height="568" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalContentAlignment="Center" ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="White" FontSize="24" Opacity="0.7"/>
         <Grid>
             <!--<TextBox x:Name="textBox_path" Grid.Column="2" HorizontalAlignment="Left" Height="43" Margin="298,469,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" BorderBrush="{x:Null}" FontSize="16" Background="#FFF4F4F5" Focusable="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>-->

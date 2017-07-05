@@ -356,7 +356,10 @@ namespace RGZ
             listBox_namelist.SelectedIndex = 0;
             btn_delete_Click(this, new RoutedEventArgs());
             cs.Vars.Files.Clear();
+<<<<<<< HEAD
             cs.Vars.ShortNameFiles.Clear();
+=======
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
         }
 
         private void btn_check_Click(object sender, RoutedEventArgs e)
@@ -507,7 +510,11 @@ namespace RGZ
         private void LoadingFiles(List<string> Files)
         {
             if ((cb_Berlinger.IsChecked == false && cb_Holsted.IsChecked == false && cb_Jilb.IsChecked == false && cb_Comments.IsChecked == false
+<<<<<<< HEAD
                 && cb_MakKeib.IsChecked == false && cb_SLOC.IsChecked == false) || Files.Count == 0)//если метрики не выбраны
+=======
+                && cb_MakKeib.IsChecked == false && cb_SLOC.IsChecked == false) || cs.Vars.Files.Count == 0)//если метрики не выбраны
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
             {
                 System.Windows.MessageBox.Show("Пожалуйста, добавьте файлы и/или выберите метрику");
                 btn_settings_Click(this, new RoutedEventArgs());
@@ -527,6 +534,7 @@ namespace RGZ
                 }
                 if (cb_Holsted.IsChecked == true)//если выбран Холстед
                 {
+<<<<<<< HEAD
                     double[] HolstedsResults = cs.HolstedMetrics.СalculationHolstedsMetrics(Files);//значение метрик Холстеда
                     label_codes.Text = "Уровень языка выражения (больше - лучше): " + HolstedsResults[5].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Трудоёмкость кодирования (меньше - лучше): " + HolstedsResults[4].ToString() + "\n" + label_codes.Text;
@@ -534,19 +542,37 @@ namespace RGZ
                     label_codes.Text = "Уровень качества программирования (больше - лучше): " + HolstedsResults[2].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Объём программы (меньше - лучше): " + HolstedsResults[1].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Длина программы (меньше - лучше): " + HolstedsResults[0].ToString() + "\n" + label_codes.Text;
+=======
+                    double[] HolstedsResults = cs.HolstedMetrics.СalculationHolstedsMetrics(cs.Vars.Files);//значение метрик Холстеда
+                    label_codes.Text = "Уровень языка выражения: " + HolstedsResults[5].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Трудоёмкость кодирования: " + HolstedsResults[4].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Cложность понимания программы: " + HolstedsResults[3].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Уровень качества программирования: " + HolstedsResults[2].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Объём программы: " + HolstedsResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Длина программы: " + HolstedsResults[0].ToString() + "\n" + label_codes.Text;
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
                     label_codes.Text = "\n" + "Метрики Холстеда:" + "\n" + label_codes.Text;
                 }
                 if (cb_Jilb.IsChecked == true)
                 {
+<<<<<<< HEAD
                     double[] JilbResults = cs.JilbMetrics.CalculationJilbMetrics(Files);//значение метрик Холстеда
                     label_codes.Text = "Средняя глубина вложенности (меньше - лучше): " + JilbResults[3].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Максимальная глубина вложенности (меньше - лучше): " + JilbResults[2].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Количество операторов цикла (меньше - лучше): " + JilbResults[1].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Количество условных операторов (меньше - лучше): " + JilbResults[0].ToString() + "\n" + label_codes.Text;
+=======
+                    double[] JilbResults = cs.JilbMetrics.CalculationJilbMetrics(cs.Vars.Files);//значение метрик Холстеда
+                    label_codes.Text = "Средняя глубина вложенности: " + JilbResults[3].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Максимальная глубина вложенности: " + JilbResults[2].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Количество операторов цикла: " + JilbResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Количество условных операторов: " + JilbResults[0].ToString() + "\n" + label_codes.Text;
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
                     label_codes.Text = "\n" + "Метрики Джилба:" + "\n" + label_codes.Text;
                 }
                 if (cb_MakKeib.IsChecked == true)//если выбран Мак-Кейб
                 {
+<<<<<<< HEAD
                     double McCabeResult = cs.McCabeMetric.CalculationMcCabeMetric(Files);//значение метрики Мак-Кейба
                     label_codes.Text = "\n" + "Цикломатическое число Мак-Кейба (от 0 до 20 хорошо, больше - хуже): " + McCabeResult.ToString() + "\n" + label_codes.Text;
                 }
@@ -555,13 +581,29 @@ namespace RGZ
                     double[] SLOCResults = cs.SLOC.CalculationSLOCMetric(Files);//значение метрик SLOC
                     label_codes.Text = "Количество логических строк (меньше - лучше): " + SLOCResults[1].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Количество физических строк (меньше - лучше): " + SLOCResults[0].ToString() + "\n" + label_codes.Text;
+=======
+                    double McCabeResult = cs.McCabeMetric.CalculationMcCabeMetric(cs.Vars.Files);//значение метрики Мак-Кейба
+                    label_codes.Text = "\n" + "Цикломатическое число Мак-Кейба: " + McCabeResult.ToString() + "\n" + label_codes.Text;
+                }
+                if (cb_SLOC.IsChecked == true)//если выбран SLOC
+                {
+                    double[] SLOCResults = cs.SLOC.CalculationSLOCMetric(cs.Vars.Files);//значение метрик SLOC
+                    label_codes.Text = "Количество логических строк: " + SLOCResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Количество физических строк: " + SLOCResults[0].ToString() + "\n" + label_codes.Text;
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
                     label_codes.Text = "\n" + "SLOC (метрики оценки величины программы):" + "\n" + label_codes.Text;
                 }
                 if (cb_Comments.IsChecked == true)//если выбраны метрики комментариев
                 {
+<<<<<<< HEAD
                     double[] CommentResults = cs.Comments.CalculationCommentsMetric(Files);//значение метрик Холстеда
                     label_codes.Text = "Относительное количество комментариев (как правило, больше - лучше): " + CommentResults[1].ToString() + "\n" + label_codes.Text;
                     label_codes.Text = "Абсолютное количество комментариев (как правило, больше - лучше): " + CommentResults[0].ToString() + "\n" + label_codes.Text;
+=======
+                    double[] CommentResults = cs.Comments.CalculationCommentsMetric(cs.Vars.Files);//значение метрик Холстеда
+                    label_codes.Text = "Относительное количество комментариев: " + CommentResults[1].ToString() + "\n" + label_codes.Text;
+                    label_codes.Text = "Абсолютное количество комментариев: " + CommentResults[0].ToString() + "\n" + label_codes.Text;
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
                     label_codes.Text = "\n" + "Метрики оценки комментирования программы:" + "\n" + label_codes.Text;
                 }
             }

@@ -73,7 +73,11 @@
     <Compile Include="cs\JilbMetrics.cs" />
     <Compile Include="cs\McCabeMetric.cs" />
     <Compile Include="cs\SLOC.cs" />
+<<<<<<< HEAD
     <Compile Include="cs\TransformationFunctions.cs" />
+=======
+    <Compile Include="cs\TransforamationFunctions.cs" />
+>>>>>>> 41e307b6b8ba7726a0302919b40a6593bdb90acd
     <Compile Include="cs\Vars.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
